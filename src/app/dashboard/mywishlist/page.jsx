@@ -9,51 +9,51 @@ import { collection, getDocs, doc, getDoc, deleteDoc, query, where } from "fireb
 import { onAuthStateChanged } from "firebase/auth";
 import Swal from "sweetalert2";
 
-// --- THEME & STYLES ---
-const primaryGold = '#D4AF37';
-const primaryBlue = '#1E3A8A';
-const goldGradient = 'linear-gradient(135deg, #FFDF73 0%, #D4AF37 50%, #AA7C11 100%)';
-const blueGradient = 'linear-gradient(135deg, #3B82F6 0%, #1E3A8A 50%, #0F172A 100%)';
-
-// 🎨 BEES INTERIOR THEME COLORS
-const Blue = "#2563eb";
+// 🎨 ECHOBYTE CONCEPT THEME COLORS (Indigo / Violet Gradient Palette & Light Theme)
+const PrimaryColor = "#6366f1";
 const Dark = "#0f172a";
-const Border = "#e5eaf2";
+const Border = "#e2e8f0";
 const White = "#ffffff";
-const Gold = "#D4AF37";
-const TextMuted = "#475569";
+const AccentGradient = "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)";
+const TextMuted = "#64748b";
+const LightBg = "#f8fafc";
 const Danger = "#ef4444";
 
 const ProductsSection = styled.section`
-  background: #FFFFFF;
-  padding: 15px 10px;
-  border-radius: 6px;
+  background: ${White};
+  padding: 20px 16px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  gap: 20px;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
+  border: 1px solid ${Border};
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const SectionHeader = styled.div`
   text-align: center;
   margin-bottom: 5px;
   padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 800;
-  background: ${blueGradient};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: ${Dark};
   margin: 0;
+  letter-spacing: -0.02em;
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: 13px;
-  color: #64748B;
-  margin: 4px 0 0 0;
+  font-size: 0.95rem;
+  color: ${TextMuted};
+  margin: 0;
+  font-weight: 500;
 `;
 
 // --- CONTROLS CONTAINER (Search & Filter) ---
@@ -61,10 +61,9 @@ const ControlsContainer = styled.div`
   display: flex;
   gap: 12px;
   max-width: 600px;
-  margin: 0 auto 10px auto;
+  margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
-  padding: 0 10px;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -74,18 +73,19 @@ const ControlsContainer = styled.div`
 
 const SearchInput = styled.input`
   flex: 1;
-  padding: 10px 14px;
-  border-radius: 6px;
+  padding: 12px 16px;
+  border-radius: 10px;
   border: 1px solid ${Border};
-  font-size: 13px;
+  font-size: 0.9rem;
   outline: none;
-  background: #F8FAFC;
+  background: ${LightBg};
   color: ${Dark};
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: all 0.2s ease;
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${PrimaryColor};
     background: ${White};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 
   &::placeholder {
@@ -94,67 +94,66 @@ const SearchInput = styled.input`
 `;
 
 const SortSelect = styled.select`
-  padding: 10px 14px;
-  border-radius: 6px;
+  padding: 12px 16px;
+  border-radius: 10px;
   border: 1px solid ${Border};
-  font-size: 13px;
+  font-size: 0.9rem;
   outline: none;
-  background: #F8FAFC;
+  background: ${LightBg};
   color: ${Dark};
   cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: all 0.2s ease;
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${PrimaryColor};
     background: ${White};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 `;
 
 const ProductsGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
   width: 100%;
   box-sizing: border-box;
 
   @media (max-width: 768px) {
-    gap: 4px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 `;
 
 const ProductCard = styled.div`
-  border-radius: 10px;
-  padding: 10px;
+  background: ${White};
+  border-radius: 14px;
+  padding: 14px;
   border: 1px solid ${Border};
-  border-left: 4px solid ${Gold};
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  border-left: 4px solid ${PrimaryColor};
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-  width: 100%;
-  max-width: 250px;
+  transition: all 0.25s ease;
   box-sizing: border-box;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    transform: translateY(-3px);
+    border-color: ${PrimaryColor};
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.1);
   }
 
   @media (max-width: 768px) {
-    padding: 8px;
-    gap: 6px;
-    max-width: calc(50% - 2px); 
+    padding: 10px;
+    gap: 8px;
   }
 `;
 
 const CardImageWrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 140px;
+  height: 150px;
 
   @media (max-width: 768px) {
     height: 120px;
@@ -165,7 +164,7 @@ const CardLoveIcon = styled.button`
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid ${Border};
   border-radius: 50%;
   width: 32px;
@@ -186,9 +185,9 @@ const CardLoveIcon = styled.button`
 
 const CardImage = styled.img`
   width: 100%;
-  height: 140px;
+  height: 150px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 8px;
 
   @media (max-width: 768px) {
     height: 120px;
@@ -196,10 +195,14 @@ const CardImage = styled.img`
 `;
 
 const ProductTitle = styled.h4`
-  font-size: 13px;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: ${primaryBlue};
+  color: ${Dark};
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
 const ProductPriceRow = styled.div`
@@ -207,29 +210,25 @@ const ProductPriceRow = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-
-  @media(max-width: 768px) {
-    flex-direction: column;
-    gap: 5px;
-  }
 `;
 
 const PriceText = styled.span`
-  font-size: 14px;
+  font-size: 0.95rem;
   font-weight: 800;
-  color: #0F172A;
+  color: ${Dark};
 `;
 
 const AddButton = styled.button`
-  background: ${blueGradient};
-  color: #FFFFFF;
+  background: ${AccentGradient};
+  color: ${White};
   border: none;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  transition: opacity 0.2s ease;
 
   &:hover {
     opacity: 0.9;
@@ -243,28 +242,29 @@ const ViewMoreContainer = styled.div`
 `;
 
 const ViewMoreButton = styled.button`
-  background: ${goldGradient};
-  color: #0F172A;
+  background: ${AccentGradient};
+  color: ${White};
   border: none;
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-weight: 800;
-  font-size: 13px;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+  transition: all 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
   }
 `;
 
 const LoadingText = styled.div`
   text-align: center;
-  font-size: 13px;
-  color: #64748B;
-  padding: 20px;
+  font-size: 0.95rem;
+  color: ${TextMuted};
+  padding: 30px;
+  font-weight: 500;
 `;
 
 // --- COMPONENT EXPORT ---
@@ -375,7 +375,7 @@ export default function UserWishlistPage() {
       <ProductsSection>
         <SectionHeader>
           <SectionTitle>My Wishlist</SectionTitle>
-          <SectionSubtitle>Your saved luxury items and decor choices.</SectionSubtitle>
+          <SectionSubtitle>Your saved products and items.</SectionSubtitle>
         </SectionHeader>
         <LoadingText>Loading your wishlist...</LoadingText>
       </ProductsSection>
@@ -403,7 +403,7 @@ export default function UserWishlistPage() {
       <ProductsSection>
         <SectionHeader>
           <SectionTitle>My Wishlist</SectionTitle>
-          <SectionSubtitle>Your saved luxury items and decor choices.</SectionSubtitle>
+          <SectionSubtitle>Your saved products and items.</SectionSubtitle>
         </SectionHeader>
         <LoadingText>Your wishlist is currently empty.</LoadingText>
         <ViewMoreContainer>
@@ -418,9 +418,8 @@ export default function UserWishlistPage() {
   return (
     <ProductsSection>
       <SectionHeader>
-        <SectionTitle style={{ textDecoration: 'underline' }}>MY WISHLIST</SectionTitle>
-        <SectionTitle style={{ fontSize: '1rem', marginTop: '20px' }}>Saved Luxury Accessories</SectionTitle>
-        <SectionSubtitle>Review and manage your favorite home decor and furniture pieces.</SectionSubtitle>
+        <SectionTitle>My Wishlist</SectionTitle>
+        <SectionSubtitle>Review and manage your favorite saved digital and physical products.</SectionSubtitle>
       </SectionHeader>
 
       {/* Search and Sort Controls */}
@@ -444,7 +443,7 @@ export default function UserWishlistPage() {
       {filteredAndSortedProducts.length === 0 ? (
         <LoadingText>No products match your search query.</LoadingText>
       ) : (
-        <ProductsGrid $itemCount={filteredAndSortedProducts.length}>
+        <ProductsGrid>
           {filteredAndSortedProducts.map((product, idx) => {
             const displayImg = product.images?.[0] || product.image || "https://placehold.co/400x300?text=No+Image";
             const productPrice = Number(product.amount || 0);
@@ -481,11 +480,11 @@ export default function UserWishlistPage() {
         </ProductsGrid>
       )}
 
-      <ViewMoreContainer>
+      {/* <ViewMoreContainer>
         <ViewMoreButton onClick={() => router.push('/store')}>
           Continue Shopping →
         </ViewMoreButton>
-      </ViewMoreContainer>
+      </ViewMoreContainer> */}
     </ProductsSection>
   );
 }

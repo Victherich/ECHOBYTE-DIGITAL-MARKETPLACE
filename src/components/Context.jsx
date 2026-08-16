@@ -41,59 +41,7 @@ const router = useRouter();
 
 
 
-  
-//after payment logic
-//   async function finalizeOnlinePaymentOrder(paymentData, verificationNumber) {
-//   try {
-//     const storedOrder = localStorage.getItem('pendingOrder');
-//     if (!storedOrder) {
-//       console.warn("No pending order found in localStorage.");
-//       return;
-//     }
-
-//     const orderPayload = JSON.parse(storedOrder);
-
-//     orderPayload.paymentStatus = 'Paid';
-//     orderPayload.createdAt = serverTimestamp();
-
-//     const docRef = await addDoc(collection(db, "orders"), orderPayload);
-
-//     const buyerEmail = orderPayload.accountInfo?.email || '';
-//     const sellerEmail = 'victorndu393@gmail.com';
-
-//     await fetch('/api/send-order-email', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({
-//         orderId: docRef.id,
-//         payload: orderPayload,
-//         recipients: [buyerEmail, sellerEmail].filter(Boolean)
-//       })
-//     }).catch((err) => {
-//       console.error("Error triggering email notification:", err);
-//     });
-
-//     if (typeof clearCart === 'function') {
-//       clearCart();
-//     }
-//     localStorage.removeItem('selectedAddress');
-//     localStorage.removeItem('pendingOrder');
-
-//     await Swal.fire({
-//       title: 'Payment Successful!',
-//       text: 'Your order has been placed successfully and confirmation details sent to your email.',
-//       icon: 'success',
-//       confirmButtonText: 'View My Orders'
-//     });
-
-//     router.push('/dashboard/myorders');
-
-//   } catch (error) {
-//     console.error("Error finalizing online payment order:", error);
-//     Swal.fire('Error', 'Failed to save your order. Please contact support.', 'error');
-//   }
-// }
-
+ 
 
 
 //after payment logic
@@ -107,14 +55,13 @@ const router = useRouter();
 
       const orderPayload = JSON.parse(storedOrder);
 
-      orderPayload.paymentData = paymentData;
-      orderPayload.paymentVerificationNumber = verificationNumber;
+      orderPayload.paymentData = paymentData||'';
+      orderPayload.paymentVerificationNumber = verificationNumber||'';
 
       const docRef = await addDoc(collection(db, "orders"), orderPayload);
 
       const buyerEmail = orderPayload.accountInfo?.email || '';
-      // const sellerEmail = 'victorndu393@gmail.com';
-      const sellerEmail = 'beesinterior@gmail.com';
+      const sellerEmail = orderPayload.product?.creatorEmail || '';
 
       await fetch('/api/send-order-email', {
         method: 'POST',
@@ -128,11 +75,10 @@ const router = useRouter();
         console.error("Error triggering email notification:", err);
       });
 
-      if (typeof clearCart === 'function') {
-        clearCart();
-      }
-      localStorage.removeItem('selectedAddress');
+     
       localStorage.removeItem('pendingOrder');
+        localStorage.removeItem('orderCheck');
+      // alert('success')
 
     } catch (error) {
       console.error("Error finalizing online payment order:", error);
@@ -230,12 +176,22 @@ const router = useRouter();
     };
   };
 
-  const payWithPaystack = async (amount,currency) => {
+  const payWithPaystack = async (subaccount_code,amount,currency) => {
     const email = auth.currentUser?.email;
     const name = auth.currentUser?.displayName || "";
     const nameParts = name.trim().split(/\s+/);
     const firstName = nameParts[0] || "";
     const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
+
+
+    if(!subaccount_code){
+       Swal.fire({
+        icon: "warning",
+        title: "Missing Payout Account",
+        text: "This seller have not added a payout account.",
+      });
+      return;
+    }
 
     if (!email || !amount || !firstName || !lastName || !currency) {
       Swal.fire({
@@ -259,7 +215,7 @@ const router = useRouter();
     }
 
     const verificationNumber = `${Date.now()}E${Math.floor(Math.random() * 1000000000)}`;
-    const source = "Bees Interior Website";
+    const source = "Echobyte Digital Market Place";
     const purpose = "Purchase of Product";
 
     const initialTransaction = {
@@ -271,7 +227,7 @@ const router = useRouter();
       createdAt: new Date().toISOString(),
       paymentMethod: "Paystack",
       currency: currency,
-      subaccount: "ACCT_7k2sd8z7pxgyce9",
+      subaccount: subaccount_code,
       bearer: "subaccount",
       metadata: {
         custom_payment_verification_number: verificationNumber,
@@ -306,6 +262,8 @@ const router = useRouter();
         email,
         firstname: firstName,
         lastname: lastName,
+         subaccount: subaccount_code,
+      bearer: "subaccount",
         metadata: {
           custom_payment_verification_number: verificationNumber,
           source,
@@ -376,7 +334,8 @@ const router = useRouter();
       paymentSession,
       setPaymentSession,
       payWithPaystack,
-      startPaymentPolling1
+      startPaymentPolling1,
+      finalizeOnlinePaymentOrder
     }),
     [showSubscriptionReminder, user, sidebarOpen, theme, paymentSession]
   );

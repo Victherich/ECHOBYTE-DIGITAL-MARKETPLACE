@@ -1,8 +1,3 @@
-
-
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,21 +5,20 @@ import { db } from "@/firebaseConfig";
 import { 
   collection, 
   getDocs, 
-  updateDoc, 
-  doc, 
-  serverTimestamp 
+  query, 
+  where 
 } from "firebase/firestore";
 import styled from "styled-components";
 import Swal from "sweetalert2";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
-// 🎨 BEES INTERIOR THEME COLORS
-const Blue = "#2563eb";
+// 🎨 ECHOBYTE DIGITAL STORE THEME COLORS (Indigo/Purple Vibrant Tech Gradient)
+const Primary = "#6366f1";
+const Secondary = "#a855f7";
 const Dark = "#0f172a";
 const Border = "#e5eaf2";
 const White = "#ffffff";
-const Gold = "#D4AF37";
-const TextMuted = "#475569";
+const TextMuted = "#64748B";
 const Danger = "#ef4444";
 const Success = "#10b981";
 const Warning = "#f59e0b";
@@ -41,21 +35,21 @@ const Container = styled.div`
 `;
 
 const HeaderBanner = styled.div`
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+  background: linear-gradient(135deg, ${Primary} 0%, ${Secondary} 100%);
   color: ${White};
   padding: 10px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.08);
 `;
 
 const ColorfulTitle = styled.h1`
   font-size: 1.6rem;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(90deg, #ffffff 0%, #fef08a 100%);
+  background: linear-gradient(90deg, #ffffff 0%, #e0e7ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
@@ -88,7 +82,7 @@ const StyledInput = styled.input`
   background: ${White};
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${Primary};
   }
 `;
 
@@ -103,7 +97,7 @@ const ColorfulSectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+  background: linear-gradient(135deg, ${Primary} 0%, ${Secondary} 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
@@ -119,8 +113,8 @@ const OrderCard = styled.div`
   border-radius: 10px;
   padding: 10px;
   border: 1px solid ${Border};
-  border-left: 4px solid ${Gold};
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  border-left: 4px solid ${Primary};
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.04);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -145,18 +139,6 @@ const OrderIdText = styled.h3`
   color: ${Dark};
 `;
 
-const OrderCustomer = styled.p`
-  margin: 0;
-  font-size: 0.85rem;
-  color: ${TextMuted};
-  font-weight: 600;
-`;
-
-const OrderEmail = styled.span`
-  font-size: 0.75rem;
-  color: ${TextMuted};
-`;
-
 const BadgeContainer = styled.div`
   display: flex;
   gap: 5px;
@@ -169,13 +151,13 @@ const Badge = styled.span`
     props.$variant === "danger" ? "rgba(239, 68, 68, 0.1)" : 
     props.$variant === "success" ? "rgba(16, 185, 129, 0.1)" : 
     props.$variant === "warning" ? "rgba(245, 158, 11, 0.1)" : 
-    "rgba(37, 99, 235, 0.1)"
+    "rgba(99, 102, 241, 0.1)"
   };
   color: ${(props) => 
     props.$variant === "danger" ? Danger : 
     props.$variant === "success" ? Success : 
     props.$variant === "warning" ? Warning : 
-    Blue
+    Primary
   };
   padding: 3px 8px;
   border-radius: 6px;
@@ -194,35 +176,6 @@ const OrderDetailsBox = styled.div`
   color: ${TextMuted};
 `;
 
-const ControlGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: 5px;
-`;
-
-const ControlLabel = styled.label`
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: ${Dark};
-`;
-
-const StyledSelect = styled.select`
-  border: 1px solid ${Border};
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 0.85rem;
-  outline: none;
-  color: ${Dark};
-  width: 100%;
-  background: ${White};
-  box-sizing: border-box;
-
-  &:focus {
-    border-color: ${Blue};
-  }
-`;
-
 const LoadingContainer = styled.div`
   padding: 10px;
   text-align: center;
@@ -236,119 +189,100 @@ const MoreDetailsButton = styled.button`
   font-size: 0.85rem;
   font-weight: 600;
   color: ${White};
-  background: ${Blue};
+  background: ${Primary};
   border: none;
   border-radius: 6px;
   cursor: pointer;
+
+  &:hover {
+    background: #4f46e5;
+  }
 `;
 
-export default function OrdersManagementPage() {
+export default function SellerSalesPage({ sellerEmail }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  const fetchOrders = async () => {
+  const fetchSellerOrders = async () => {
     try {
       setLoading(true);
-      const querySnapshot = await getDocs(collection(db, "orders"));
+      
+      let q = collection(db, "orders");
+      if (sellerEmail) {
+        q = query(collection(db, "orders"), where("product.sellerEmail", "==", sellerEmail));
+      }
+
+      const querySnapshot = await getDocs(q);
       const list = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setOrders(list);
     } catch (error) {
-      Swal.fire("Error", "Failed to fetch orders.", "error");
+      console.error("Error fetching seller sales:", error);
+      Swal.fire("Error", "Failed to fetch store sales.", "error");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const handleUpdateStatus = async (orderId, newOrderStatus) => {
-    try {
-      const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, {
-        orderStatus: newOrderStatus,
-        updatedAt: serverTimestamp(),
-      });
-      Swal.fire("Updated!", "Order status updated successfully.", "success");
-      fetchOrders();
-    } catch (error) {
-      Swal.fire("Error", "Could not update order status.", "error");
-    }
-  };
-
-  const handleUpdatePaymentStatus = async (orderId, newPaymentStatus) => {
-    try {
-      const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, {
-        paymentStatus: newPaymentStatus,
-        updatedAt: serverTimestamp(),
-      });
-      Swal.fire("Updated!", "Payment status updated successfully.", "success");
-      fetchOrders();
-    } catch (error) {
-      Swal.fire("Error", "Could not update payment status.", "error");
-    }
-  };
+    fetchSellerOrders();
+  }, [sellerEmail]);
 
   const filteredOrders = orders.filter((o) => {
-    const orderNoMatch = o.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-    const docIdMatch = o.id?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-    const nameMatch = o.accountInfo?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-    const emailMatch = o.accountInfo?.email?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-    return orderNoMatch || docIdMatch || nameMatch || emailMatch;
+    const queryText = searchQuery.toLowerCase();
+    const orderNoMatch = o.orderNumber?.toLowerCase().includes(queryText) || false;
+    const docIdMatch = o.id?.toLowerCase().includes(queryText) || false;
+    const productNameMatch = o.product?.name?.toLowerCase().includes(queryText) || false;
+    return orderNoMatch || docIdMatch || productNameMatch;
   });
 
   if (loading) {
-    return <LoadingContainer>Loading orders registry...</LoadingContainer>;
+    return <LoadingContainer>Loading store sales...</LoadingContainer>;
   }
 
   return (
     <Container>
       <HeaderBanner>
-        <ColorfulTitle>Customer Orders Management 📦</ColorfulTitle>
-        <ColorfulSub>Track client purchases, update fulfillment workflows, and verify transaction payments.</ColorfulSub>
+        <ColorfulTitle>Store Sales 📦</ColorfulTitle>
+        <ColorfulSub>View products purchased from your store</ColorfulSub>
       </HeaderBanner>
 
       <SearchContainer>
         <StyledInput 
           type="text" 
-          placeholder="Search by order number, customer name, or email..." 
+          placeholder="Search by order number or product name..." 
           value={searchQuery} 
           onChange={(e) => setSearchQuery(e.target.value)} 
         />
       </SearchContainer>
 
       <ActionRow>
-        <ColorfulSectionTitle>All Orders ({filteredOrders.length})</ColorfulSectionTitle>
+        <ColorfulSectionTitle>Sales History ({filteredOrders.length})</ColorfulSectionTitle>
       </ActionRow>
 
       {filteredOrders.length === 0 ? (
-        <LoadingContainer>No matching orders found.</LoadingContainer>
+        <LoadingContainer>No matching sales found.</LoadingContainer>
       ) : (
         <OrdersGrid>
           {filteredOrders.map((order) => {
             const currentOrderStatus = order.orderStatus || "Pending";
             const currentPaymentStatus = order.paymentStatus || "Pending";
             const customerName = order.accountInfo?.name || "Valued Customer";
-            const customerEmail = order.accountInfo?.email || "No Email Provided";
-            const paymentType = order.paymentType || "ONLINE PAYMENT";
+            const email = order.accountInfo?.email || "No Email Provided";
             const currency = order.currency || "NGN";
-            const finalTotal = Number(order.finalTotal || 0).toLocaleString();
-            const itemCount = order.items?.length || 0;
+            const amount = order.product?.amount || 0;
+            const productName = order.product?.name || "Unnamed Product";
+            const productUrl = order.product?.productUrl || "";
 
             return (
               <OrderCard key={order.id}>
                 <CardHeader>
                   <OrderInfo>
-                    <OrderIdText>{order.orderNumber || `Order #${order.id.slice(0, 8)}`}</OrderIdText>
-                    <OrderCustomer>{customerName}</OrderCustomer>
-                    <OrderEmail>{customerEmail}</OrderEmail>
+                    <OrderIdText>{productName}</OrderIdText>
                   </OrderInfo>
                   <BadgeContainer>
                     <Badge $variant={
@@ -367,37 +301,15 @@ export default function OrdersManagementPage() {
                 </CardHeader>
 
                 <OrderDetailsBox>
-                  <span>Total: <strong>{currency} {finalTotal}</strong></span>
-                  <span>Items: {itemCount} product(s)</span>
-                  <span>Payment Type: <strong>{paymentType}</strong></span>
+                  <span>Amount: <strong>{currency} {amount}</strong></span>
+                  <span>Order Number: {order.orderNumber || `Order #${order.id.slice(0, 8)}`}</span>
+                  <span>Customer Name: {customerName}</span>
+                  <span>Email: {email}</span>
                 </OrderDetailsBox>
 
-                <ControlGroup>
-                  <ControlLabel>Order Status</ControlLabel>
-                  <StyledSelect 
-                    value={currentOrderStatus} 
-                    onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Processing">Processing</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </StyledSelect>
-                </ControlGroup>
-
-                <ControlGroup>
-                  <ControlLabel>Payment Status</ControlLabel>
-                  <StyledSelect 
-                    value={currentPaymentStatus} 
-                    onChange={(e) => handleUpdatePaymentStatus(order.id, e.target.value)}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Failed">Failed</option>
-                  </StyledSelect>
-                </ControlGroup>
-                <MoreDetailsButton onClick={() => router.push(`/dashboard/orders/${order.id}`)}>View Order Details</MoreDetailsButton>
+                <MoreDetailsButton onClick={() => window.open(productUrl, '_blank')}>
+                  Access Product
+                </MoreDetailsButton>
               </OrderCard>
             );
           })}

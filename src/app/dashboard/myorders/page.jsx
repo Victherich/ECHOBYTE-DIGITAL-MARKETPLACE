@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,13 +19,13 @@ import styled from "styled-components";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
-// 🎨 BEES INTERIOR THEME COLORS
-const Blue = "#2563eb";
+// 🎨 ECHOBYTE DIGITAL STORE THEME COLORS (Indigo/Purple Vibrant Tech Gradient)
+const Primary = "#6366f1";
+const Secondary = "#a855f7";
 const Dark = "#0f172a";
 const Border = "#e5eaf2";
 const White = "#ffffff";
-const Gold = "#D4AF37";
-const TextMuted = "#475569";
+const TextMuted = "#64748B";
 const Danger = "#ef4444";
 const Success = "#10b981";
 const Warning = "#f59e0b";
@@ -35,21 +42,21 @@ const Container = styled.div`
 `;
 
 const HeaderBanner = styled.div`
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+  background: linear-gradient(135deg, ${Primary} 0%, ${Secondary} 100%);
   color: ${White};
   padding: 10px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.08);
 `;
 
 const ColorfulTitle = styled.h1`
   font-size: 1.6rem;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(90deg, #ffffff 0%, #fef08a 100%);
+  background: linear-gradient(90deg, #ffffff 0%, #e0e7ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
@@ -82,7 +89,7 @@ const StyledInput = styled.input`
   background: ${White};
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${Primary};
   }
 `;
 
@@ -97,7 +104,7 @@ const ColorfulSectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+  background: linear-gradient(135deg, ${Primary} 0%, ${Secondary} 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
@@ -113,8 +120,8 @@ const OrderCard = styled.div`
   border-radius: 10px;
   padding: 10px;
   border: 1px solid ${Border};
-  border-left: 4px solid ${Gold};
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  border-left: 4px solid ${Primary};
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.04);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -163,13 +170,13 @@ const Badge = styled.span`
     props.$variant === "danger" ? "rgba(239, 68, 68, 0.1)" : 
     props.$variant === "success" ? "rgba(16, 185, 129, 0.1)" : 
     props.$variant === "warning" ? "rgba(245, 158, 11, 0.1)" : 
-    "rgba(37, 99, 235, 0.1)"
+    "rgba(99, 102, 241, 0.1)"
   };
   color: ${(props) => 
     props.$variant === "danger" ? Danger : 
     props.$variant === "success" ? Success : 
     props.$variant === "warning" ? Warning : 
-    Blue
+    Primary
   };
   padding: 3px 8px;
   border-radius: 6px;
@@ -201,10 +208,14 @@ const MoreDetailsButton = styled.button`
   font-size: 0.85rem;
   font-weight: 600;
   color: ${White};
-  background: ${Blue};
+  background: ${Primary};
   border: none;
   border-radius: 6px;
   cursor: pointer;
+
+  &:hover {
+    background: #4f46e5;
+  }
 `;
 
 export default function CustomerOrdersPage({ customerEmail }) {
@@ -217,8 +228,6 @@ export default function CustomerOrdersPage({ customerEmail }) {
     try {
       setLoading(true);
       
-      // If customerEmail prop is provided, query specifically for their orders
-      // Falls back to fetching all if email isn't passed (adjust based on your auth implementation)
       let q = collection(db, "orders");
       if (customerEmail) {
         q = query(collection(db, "orders"), where("accountInfo.email", "==", customerEmail));
@@ -242,12 +251,17 @@ export default function CustomerOrdersPage({ customerEmail }) {
     fetchCustomerOrders();
   }, [customerEmail]);
 
-  // Retain search filter strictly by order number (or order id fallback)
+
+
   const filteredOrders = orders.filter((o) => {
-    const orderNoMatch = o.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-    const docIdMatch = o.id?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-    return orderNoMatch || docIdMatch;
+    const queryText = searchQuery.toLowerCase();
+    const orderNoMatch = o.orderNumber?.toLowerCase().includes(queryText) || false;
+    const docIdMatch = o.id?.toLowerCase().includes(queryText) || false;
+    const productNameMatch = o.product?.name?.toLowerCase().includes(queryText) || false;
+    return orderNoMatch || docIdMatch || productNameMatch;
   });
+
+
 
   if (loading) {
     return <LoadingContainer>Loading your orders...</LoadingContainer>;
@@ -256,14 +270,14 @@ export default function CustomerOrdersPage({ customerEmail }) {
   return (
     <Container>
       <HeaderBanner>
-        <ColorfulTitle>My Orders 📦</ColorfulTitle>
-        <ColorfulSub>View your purchase history and track active deliveries.</ColorfulSub>
+        <ColorfulTitle>My Orders</ColorfulTitle>
+        <ColorfulSub>View your purchases</ColorfulSub>
       </HeaderBanner>
 
       <SearchContainer>
         <StyledInput 
           type="text" 
-          placeholder="Search by order number..." 
+          placeholder="Search by order number or product name..." 
           value={searchQuery} 
           onChange={(e) => setSearchQuery(e.target.value)} 
         />
@@ -282,18 +296,16 @@ export default function CustomerOrdersPage({ customerEmail }) {
             const currentPaymentStatus = order.paymentStatus || "Pending";
             const customerName = order.accountInfo?.name || "Valued Customer";
             const email = order.accountInfo?.email || "No Email Provided";
-            const paymentType = order.paymentType || "ONLINE PAYMENT";
             const currency = order.currency || "NGN";
-            const finalTotal = Number(order.finalTotal || 0).toLocaleString();
-            const itemCount = order.items?.length || 0;
-
+            const amount = order.product?.amount ||0;
+            const productName = order.product?.name||0;
+            const productUrl = order.product?.productUrl||"";
             return (
               <OrderCard key={order.id}>
                 <CardHeader>
                   <OrderInfo>
-                    <OrderIdText>{order.orderNumber || `Order #${order.id.slice(0, 8)}`}</OrderIdText>
-                    <OrderCustomer>{customerName}</OrderCustomer>
-                    <OrderEmail>{email}</OrderEmail>
+                    <OrderIdText>{productName}</OrderIdText>
+                    
                   </OrderInfo>
                   <BadgeContainer>
                     <Badge $variant={
@@ -312,14 +324,17 @@ export default function CustomerOrdersPage({ customerEmail }) {
                 </CardHeader>
 
                 <OrderDetailsBox>
-                  <span>Total: <strong>{currency} {finalTotal}</strong></span>
-                  <span>Items: {itemCount} product(s)</span>
-                  <span>Payment Type: <strong>{paymentType}</strong></span>
+                  <span>Amount: <strong>{currency} {amount}</strong></span>
+                  
+                
+                  <span>Order Number: {order.orderNumber|| `Order #${order.id.slice(0, 8)}` }</span>
+                  <span>Customer Name: {customerName}</span>
+                  <span>Email: {email}</span>
                 </OrderDetailsBox>
 
-                <MoreDetailsButton onClick={() => router.push(`/dashboard/orders/${order.id}`)}>
-                  View Order Details
-                </MoreDetailsButton>
+             <MoreDetailsButton onClick={() => window.open(productUrl, '_blank')}>
+  Access your Order
+</MoreDetailsButton>
               </OrderCard>
             );
           })}

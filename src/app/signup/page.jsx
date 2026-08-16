@@ -7,15 +7,15 @@ import Swal from "sweetalert2";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/firebaseConfig";
-
-// 🎨 BEES INTERIOR THEME COLORS
-const Blue = "#2563eb";
+// 🎨 ECHOBYTE DIGITAL STORE THEME COLORS
+const PrimaryColor = "#6366f1";
+const SecondaryColor = "#a855f7";
 const Dark = "#0f172a";
-const Border = "#e5eaf2";
+const Border = "#e2e8f0";
 const White = "#ffffff";
-const Gold = "#D4AF37";
-const TextMuted = "#475569"; // Softer, lighter shade for form text instead of pitch black
+const TextMuted = "#64748b"; // Softer, lighter shade for form text instead of pitch black
 const LightBg = "#f8fafc";
+const AccentGradient = "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)";
 
 // 🌟 Styled Components
 const PageContainer = styled.div`
@@ -33,7 +33,7 @@ const AuthWrapper = styled.div`
   width: 100%;
   max-width: 1000px;
   background: ${White};
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid ${Border};
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
   overflow: hidden;
@@ -44,9 +44,9 @@ const AuthWrapper = styled.div`
 `;
 
 const BrandingSide = styled.div`
-  background: ${Blue}; // Changed from dark to normal button blue
+  background: ${PrimaryColor};
   color: ${White};
-  padding: 10px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -57,7 +57,7 @@ const BrandingSide = styled.div`
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.2) 0%, rgba(212, 175, 55, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
     z-index: 1;
   }
 `;
@@ -67,7 +67,7 @@ const BrandingContent = styled.div`
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin: auto 0;
 `;
 
@@ -78,7 +78,7 @@ const BrandLogo = styled.h3`
   color: ${White};
 
   span {
-    color: ${Gold};
+    color: #f472b6;
   }
 `;
 
@@ -96,31 +96,31 @@ const Subtext = styled.p`
 `;
 
 const FormSide = styled.div`
-  padding: 10px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: ${TextMuted}; // Applied softer text color across the form
+  color: ${TextMuted};
 `;
 
 const FormHeader = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 16px;
 `;
 
 const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: ${Blue};
+  color: ${Dark};
   text-align: left;
 `;
 
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 
   @media (max-width: 500px) {
     grid-template-columns: 1fr;
@@ -130,7 +130,7 @@ const FormGrid = styled.div`
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   grid-column: ${(props) => (props.$full ? "span 2" : "span 1")};
 
   @media (max-width: 500px) {
@@ -141,23 +141,24 @@ const InputGroup = styled.div`
 const Label = styled.label`
   font-size: 0.85rem;
   font-weight: 600;
-  color: ${TextMuted}; // Adjusted form label color from pure black to softer tone
+  color: ${TextMuted};
   text-align: left;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 10px;
+  padding: 10px 14px;
   border: 1px solid ${Border};
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.9rem;
   background: ${White};
   color: ${Dark};
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${PrimaryColor};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 `;
 
@@ -168,14 +169,14 @@ const PasswordWrapper = styled.div`
 
 const EyeButton = styled.button`
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
   cursor: pointer;
   font-size: 0.8rem;
-  color: ${Blue};
+  color: ${PrimaryColor};
   font-weight: 600;
 
   &:hover {
@@ -202,13 +203,13 @@ const Checkbox = styled.input`
   width: 16px;
   height: 16px;
   cursor: pointer;
-  accent-color: ${Blue};
+  accent-color: ${PrimaryColor};
 `;
 
 const PolicyText = styled.span`
   text-align: left;
   a {
-    color: ${Blue};
+    color: ${PrimaryColor};
     font-weight: 600;
     text-decoration: underline;
 
@@ -221,19 +222,21 @@ const PolicyText = styled.span`
 const Button = styled.button`
   grid-column: span 2;
   width: 100%;
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%); // Gold and blue gradient button
+  background: ${AccentGradient};
   color: ${White};
-  padding: 10px;
+  padding: 12px;
   font-size: 0.95rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    opacity: 0.9;
+    opacity: 0.95;
     transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
   }
 
   @media (max-width: 500px) {
@@ -243,14 +246,14 @@ const Button = styled.button`
 
 const LinkText = styled.p`
   grid-column: span 2;
-  margin-top: 10px;
+  margin-top: 12px;
   cursor: pointer;
   color: ${TextMuted};
   font-size: 0.9rem;
   text-align: center;
 
   span {
-    color: ${Blue};
+    color: ${PrimaryColor};
     font-weight: 600;
 
     &:hover {
@@ -262,7 +265,6 @@ const LinkText = styled.p`
     grid-column: span 1;
   }
 `;
-
 // ✨ SIGNUP COMPONENT
 export default function UserSignup() {
   const router = useRouter();
@@ -273,64 +275,13 @@ export default function UserSignup() {
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "customer", // Hidden role field set by default, never displayed to user
+    role: "user", // Hidden role field set by default, never displayed to user
   });
   const [agreed, setAgreed] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (form.email !== form.confirmEmail) {
-  //     return Swal.fire("Error", "Emails do not match", "error");
-  //   }
-
-  //   if (form.password !== form.confirmPassword) {
-  //     return Swal.fire("Error", "Passwords do not match", "error");
-  //   }
-
-  //   if (!agreed) {
-  //     return Swal.fire(
-  //       "Required",
-  //       "You must agree to the Terms & Privacy Policy to continue",
-  //       "warning"
-  //     );
-  //   }
-
-  //   Swal.fire({
-  //     title: "Please wait...",
-  //     text: "Setting up your Bees Interior account...",
-  //     allowOutsideClick: false,
-  //     didOpen: () => Swal.showLoading(),
-  //   });
-
-  //   try {
-  //     const { name, email, phone, password, role } = form;
-  //     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  //     const user = userCredential.user;
-
-  //     await updateProfile(user, { displayName: name });
-
-  //     await setDoc(doc(db, "users", user.uid), {
-  //       uid: user.uid,
-  //       name,
-  //       email,
-  //       phone,
-  //       role, // Stored safely in Firestore backend
-  //       createdAt: new Date(),
-  //     });
-
-  //     Swal.fire("Success 🎉", "Welcome to Bees Interior! Your account is ready.", "success");
-  //     router.push("/login");
-  //   } catch (err) {
-  //     Swal.fire("Error ❌", err.message, "error");
-  //   }
-  // };
-
-
 
 const handleSubmit = async (e) => {
     e.preventDefault();
@@ -353,7 +304,7 @@ const handleSubmit = async (e) => {
 
     Swal.fire({
       title: "Please wait...",
-      text: "Setting up your Bees Interior account...",
+      text: "Setting up your account...",
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
@@ -377,14 +328,36 @@ const handleSubmit = async (e) => {
         createdAt: new Date(),
       });
 
-      Swal.fire("Success 🎉", "Welcome to Bees Interior! Your account is ready.", "success");
+      Swal.fire("Success 🎉", "Welcome! Your account is ready.", "success");
       
       // 3. FIX: Redirect to Dashboard, NOT login, because they are already logged in
       router.push("/dashboard"); 
       
-    } catch (err) {
-      Swal.fire("Error ❌", err.message, "error");
+   } catch (err) {
+    let errorMessage = "An unexpected error occurred. Please try again.";
+
+    // Map Firebase Sign-Up error codes to clean, user-friendly messages
+    if (err.code === "auth/email-already-in-use") {
+      errorMessage = "This email address is already registered. Please log in instead.";
+    } else if (err.code === "auth/invalid-email") {
+      errorMessage = "The email address format is invalid. Please check and try again.";
+    } else if (err.code === "auth/weak-password") {
+      errorMessage = "Your password is too weak. Please use at least 6 characters with a mix of letters and numbers.";
+    } else if (err.code === "auth/network-request-failed") {
+      errorMessage = "Network error. Please check your internet connection and try again.";
     }
+
+    Swal.fire({
+      title: "Registration Failed ❌",
+      text: errorMessage,
+      icon: "error",
+      confirmButtonColor: PrimaryColor,
+      background: White,
+      color: Dark,
+    });
+
+    console.error(err); // Keeps the raw technical error in your browser console for debugging
+  }
   };
 
 
@@ -393,18 +366,18 @@ const handleSubmit = async (e) => {
     <PageContainer>
       <AuthWrapper>
         {/* Left Visual Branding Panel */}
-        <BrandingSide>
-          <BrandLogo>
-            BEES <span>INTERIOR</span>
-          </BrandLogo>
-          <BrandingContent>
-            <Headline>Design Your Dream Space</Headline>
-            <Subtext>
-              Join our exclusive interior ecosystem to track consultations, curate luxury home products, and experience sophisticated living.
-            </Subtext>
-          </BrandingContent>
-          <div /> {/* Spacer */}
-        </BrandingSide>
+      <BrandingSide>
+  <BrandLogo>
+    ECHOBYTE <span>DIGITAL STORE</span>
+  </BrandLogo>
+  <BrandingContent>
+    <Headline>Power Your Digital Future</Headline>
+    <Subtext>
+      Join our exclusive tech ecosystem to manage software services, track digital orders, and experience seamless solutions.
+    </Subtext>
+  </BrandingContent>
+  <div /> {/* Spacer */}
+</BrandingSide>
 
         {/* Right Form Panel */}
         <FormSide>

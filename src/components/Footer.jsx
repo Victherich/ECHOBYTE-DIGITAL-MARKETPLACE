@@ -1,25 +1,24 @@
-
-
 "use client";
 
 import styled from "styled-components";
 import Link from "next/link";
 import Image from "next/image";
 
-/* ================= COLORS ================= */
+/* ================= COLORS (Light Theme) ================= */
 
-const Blue = "#2563eb";
+const Blue = "#6366f1";
+const Purple = "#a855f7";
 const Dark = "#0f172a";
-const Border = "#e5eaf2";
+const TextMuted = "#475569";
+const Border = "#e2e8f0";
 const White = "#ffffff";
-const Gold = "#D4AF37";
-const TextMuted = "#64748b";
+const LightBg = "#f8fafc";
 
 /* ================= FOOTER STYLES ================= */
 
 const FooterContainer = styled.footer`
-  background: ${Dark};
-  color: ${White};
+  background: ${LightBg};
+  color: ${Dark};
   border-top: 1px solid ${Border};
   font-family: inherit;
   position: relative;
@@ -28,39 +27,39 @@ const FooterContainer = styled.footer`
 const FooterInner = styled.div`
   max-width: 1200px;
   margin: auto;
-  padding: 10px;
+  padding: 40px 1.5px 20px 1.5px;
 
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  gap: 10px;
+  gap: 30px;
 
   @media (max-width: 968px) {
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 20px;
   }
 
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 20px;
   }
 `;
 
 const FooterCol = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 `;
 
 const Logo = styled.div`
   font-size: 1.4rem;
   font-weight: 800;
-  color: ${White};
+  color: ${Dark};
   display: flex;
   align-items: center;
   gap: 4px;
 
   span {
-    background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+    background: linear-gradient(135deg, ${Blue} 0%, ${Purple} 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -75,7 +74,7 @@ const FooterText = styled.p`
 const ColTitle = styled.h4`
   font-size: 1.05rem;
   font-weight: 700;
-  color: ${White};
+  color: ${Dark};
   letter-spacing: 0.5px;
   margin-bottom: 0px;
 `;
@@ -100,9 +99,11 @@ const ContactInfo = styled.div`
   font-size: 0.9rem;
 
   span {
-    color: rgba(255, 255, 255, 0.5);
+    color: ${Dark};
+    font-weight: 500;
   }
 `;
+
 const SocialIconsContainer = styled.div`
   display: flex;
   gap: 12px;
@@ -116,15 +117,16 @@ const SocialIconLink = styled.a`
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: ${White};
+  border: 1px solid ${Border};
   color: ${TextMuted};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${Blue};
+    background: linear-gradient(135deg, ${Blue} 0%, ${Purple} 100%);
     color: ${White};
-    border-color: ${Blue};
+    border-color: transparent;
     transform: translateY(-2px);
   }
 
@@ -138,8 +140,8 @@ const SocialIconLink = styled.a`
 const BottomBar = styled.div`
   max-width: 1200px;
   margin: auto;
-  padding: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 1.5px;
+  border-top: 1px solid ${Border};
 
   display: flex;
   justify-content: space-between;
@@ -159,7 +161,7 @@ const Copyright = styled.p`
 
 const LegalLinks = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 15px;
 
   a {
     color: ${TextMuted};
@@ -177,13 +179,13 @@ const LegalLinks = styled.div`
 
 const WhatsAppFloat = styled.a`
   position: fixed;
-  bottom: 1%;
-  right: 1%;
+  bottom: 20px;
+  right: 20px;
   z-index: 300;
   background-color: #25d366;
   color: white;
-  width: 30px;
-  height: 30px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -202,8 +204,6 @@ const WhatsAppFloat = styled.a`
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-
-
   return (
     <>
       <FooterContainer>
@@ -211,13 +211,13 @@ export default function Footer() {
           {/* Col 1: Brand Info */}
           <FooterCol>
             <Link href="/" style={{ textDecoration: 'none' }}>
-              <img src="/logo.jpeg" alt="Bees Interior Logo" style={{ height: "50px", marginBottom: "10px", borderRadius: "10px" }} />  
+              <img src="/logo.jpeg" alt="EchoByte Logo" style={{ height: "50px", marginBottom: "10px", borderRadius: "10px" }} />  
               <Logo>
-                Bees<span>Interior</span>
+                Echobyte <span>Digital Store</span>
               </Logo>
             </Link>
             <FooterText>
-              Transforming spaces into timeless masterpieces. Discover luxury interior designs, curated store items, and professional execution tailored to your lifestyle.
+              Empowering your digital journey with professional web development, high-performance digital store solutions, and innovative technology services.
             </FooterText>
           </FooterCol>
 
@@ -226,8 +226,8 @@ export default function Footer() {
             <ColTitle>Quick Links</ColTitle>
             <FooterLink href="/">Home</FooterLink>
             <FooterLink href="/about">About Us</FooterLink>
-            <FooterLink href="/store">Store</FooterLink>
-            <FooterLink href="/blogs">Blogs</FooterLink>
+            <FooterLink href="/store">Digital Stores</FooterLink>
+  
             <FooterLink href="/contact">Contact</FooterLink>
           </FooterCol>
 
@@ -235,22 +235,22 @@ export default function Footer() {
           <FooterCol>
             <ColTitle>Get in Touch</ColTitle>
             <ContactInfo>
-              <p>Email: <span>beesinterior@gmail.com</span></p>
-              <p>Phone: <span>+234 812 549 4597</span></p>
-              <p>Location: <span>24 Oseni street, Anthony Village Lagos state Nigeria</span></p>
+              <p>Email: <span>echobyteconcept@gmail.com</span></p>
+              <p>Phone: <span>+234 706 348 0314</span></p>
+              {/* <p>Location: <span>Lagos state, Nigeria</span></p> */}
             </ContactInfo>
           </FooterCol>
 
- {/* Col 4: Social Media */}
+          {/* Col 4: Social Media */}
           <FooterCol>
             <ColTitle>Connect With Us</ColTitle>
             <FooterText>
-              Follow us on social media for daily design inspiration and project updates.
+              Follow us on social media for tech updates, promotions, and digital store releases.
             </FooterText>
             <SocialIconsContainer>
-              {/* Instagram */}
+              {/* Instagram / Social */}
               <SocialIconLink 
-                href="https://www.instagram.com/accessoriesbybees?igsh=MThycjkydHV4bHR1Yw==" 
+                href="https://www.instagram.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -261,23 +261,23 @@ export default function Footer() {
               </SocialIconLink>
             </SocialIconsContainer>
           </FooterCol>
+        </FooterInner>
 
         {/* Bottom Bar */}
         <BottomBar>
           <Copyright>
-            &copy; {currentYear} Bees Interior. All rights reserved.
+            &copy; {currentYear} EchoByte Concept. All rights reserved.
           </Copyright>
           <LegalLinks>
             <Link href="/privacy-policy">Privacy Policy</Link>
             <Link href="/terms-conditions">Terms & Conditions</Link>
           </LegalLinks>
         </BottomBar>
-        </FooterInner>
       </FooterContainer>
 
       {/* Floating WhatsApp Icon */}
       <WhatsAppFloat 
-        href="https://wa.me/2348125494597" 
+        href="https://wa.me/2347063480314" 
         target="_blank" 
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"
@@ -285,8 +285,8 @@ export default function Footer() {
         <Image
           src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
           alt="WhatsApp"
-          width={20}
-          height={20}
+          width={24}
+          height={24}
         />
       </WhatsAppFloat>
     </>

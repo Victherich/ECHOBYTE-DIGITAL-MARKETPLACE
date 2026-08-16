@@ -5,9 +5,10 @@ import styled from 'styled-components';
 import { useRouter } from 'next/navigation';
 import { auth, db } from "@/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, doc, getDoc, setDoc, deleteDoc, query, where, getDocs } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, deleteDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import Swal from 'sweetalert2';
 import { useCart } from '@/components/CartContext';
+import { useAppContext } from '@/components/Context';
 
 
 
@@ -16,6 +17,9 @@ import { useCart } from '@/components/CartContext';
 const primaryGold = '#D4AF37';
 const primaryBlue = '#1E3A8A';
 const blueGradient = 'linear-gradient(135deg, #3B82F6 0%, #1E3A8A 50%, #0F172A 100%)';
+const Blue = "#6366f1";
+const Purple = "#a855f7";
+const bluePurpleGradient = `linear-gradient(135deg, ${Blue} 0%, ${Purple} 100%)`;
 
 const Dark = "#0f172a";
 const Border = "#e5eaf2";
@@ -192,7 +196,8 @@ const CategoryBadge = styled.span`
 const ProductTitle = styled.h1`
   font-size: clamp(1.2rem, 2.5vw, 2.2rem);
   font-weight: 800;
-  color: ${primaryBlue};
+  // color: ${primaryBlue};
+  color: ${Blue};
   margin: 0;
   line-height: 1.25;
   word-break: break-word;
@@ -297,7 +302,7 @@ const ActionsRow = styled.div`
 
 const AddToCartButton = styled.button`
   flex: 2;
-  background: ${blueGradient};
+  background: ${bluePurpleGradient};
   color: ${White};
   border: none;
   padding: 12px 16px;
@@ -413,6 +418,33 @@ const FloatingWishlistIcon = styled.button`
   }
 `;
 
+
+const StoreFrontButton = styled.button`
+  background: transparent;
+  border: 1px solid ${primaryBlue};
+  color: ${primaryBlue};
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(30, 58, 138, 0.05);
+  }
+`;
+
+
+
+
+
 // --- COMPONENT ---
 export default function ProductDetailPage({ params }) {
   const resolvedParams = use(params);
@@ -429,7 +461,8 @@ export default function ProductDetailPage({ params }) {
 
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
-  const { addToCart } = useCart();
+
+ const {payWithPaystack, finalizeOnlinePaymentOrder} = useAppContext();
 
   // 1. Listen to authenticated user
   useEffect(() => {
@@ -516,7 +549,60 @@ const handleToggleWishlist = async () => {
 };
 
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   async function fetchProductDetails() {
+  //     if (!productId) return;
+  //     try {
+  //       setLoading(true);
+  //       const docRef = doc(db, "products", productId);
+  //       const docSnap = await getDoc(docRef);
+
+  //       if (docSnap.exists()) {
+  //         const data = docSnap.data();
+  //         const fetchedProduct = {
+  //           creatorId:data.userId,
+  //           id: docSnap.id,
+  //           name: data.name || data.title || "Untitled Product",
+  //           amount: Number(data.amount || data.price) || 0,
+  //           description: data.description || "No description provided for this luxury product.",
+  //           images: data.images?.length > 0 ? data.images : data.image ? [data.image] : [],
+  //           createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : "Recent",
+  //         };
+  //         setProduct(fetchedProduct);
+
+  //         if (fetchedProduct.categoryId) {
+  //           const catRef = doc(db, "categories", fetchedProduct.categoryId);
+  //           const catSnap = await getDoc(catRef);
+  //           if (catSnap.exists()) {
+  //             const catData = catSnap.data();
+  //             const rawTitle = catData.title || "Decor";
+  //             setCategoryName(rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1));
+  //           } else {
+  //             setCategoryName("Category");
+  //           }
+  //         } else {
+  //           setCategoryName("Category");
+  //         }
+  //       } else {
+  //         setProduct(null);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching product details:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+
+  //   fetchProductDetails();
+  // }, [productId]);
+
+
+// Replace handleAddToCart with this:
+  
+
+
+
+useEffect(() => {
     async function fetchProductDetails() {
       if (!productId) return;
       try {
@@ -526,17 +612,40 @@ const handleToggleWishlist = async () => {
 
         if (docSnap.exists()) {
           const data = docSnap.data();
+          const creatorId = data.userId;
+
+          // Fetch product creator's email from the 'users' collection
+          let creatorEmail = "Not provided";
+          if (creatorId) {
+            try {
+              const userRef = doc(db, "users", creatorId);
+              const userSnap = await getDoc(userRef);
+              if (userSnap.exists()) {
+                creatorEmail = userSnap.data().email || "Not provided";
+              }
+            } catch (err) {
+              console.error("Error fetching creator email:", err);
+            }
+          }
+
+          const emailPrefix = creatorEmail !== "Not provided" ? creatorEmail.split("@")[0] : "";
+          const storeUrl = emailPrefix ? `/${emailPrefix}` : "#";
+
           const fetchedProduct = {
+            creatorId: creatorId,
+            creatorEmail: creatorEmail, // <--- Added creator email here
+            emailPrefix: emailPrefix, // <--- Store the prefix
+            storeUrl: storeUrl,
             id: docSnap.id,
             name: data.name || data.title || "Untitled Product",
-            categoryId: data.categoryId || "",
             amount: Number(data.amount || data.price) || 0,
             description: data.description || "No description provided for this luxury product.",
             images: data.images?.length > 0 ? data.images : data.image ? [data.image] : [],
-            neverFinishes: data.neverFinishes ?? true,
-            quantity: Number(data.quantity || 0),
             createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : "Recent",
+          productUrl:data.url
           };
+
+          console.log(fetchedProduct);
           setProduct(fetchedProduct);
 
           if (fetchedProduct.categoryId) {
@@ -547,10 +656,10 @@ const handleToggleWishlist = async () => {
               const rawTitle = catData.title || "Decor";
               setCategoryName(rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1));
             } else {
-              setCategoryName("Curated Decor");
+              setCategoryName("Category");
             }
           } else {
-            setCategoryName("Curated Decor");
+            setCategoryName("Category");
           }
         } else {
           setProduct(null);
@@ -567,39 +676,146 @@ const handleToggleWishlist = async () => {
 
 
 
-  const handleAddToCart = () => {
-  if (!product) return;
 
-  addToCart({
-    id: product.id,
-    name: product.name,
-    price: product.amount,
-    image: product.images[0] || "",
-    selectedColor: "Default",
-    selectedSize: "Standard",
-    quantity: 1,
-  });
 
-  setFeedback("✓ Successfully added to your cart!");
+// const handleBuyNow = () => {
+//     if (!currentUser) {
+//       Swal.fire('Authentication Required', 'Please log in to purchase this digital product.', 'warning');
+//       router.push('/login');
+//       return;
+//     }
 
-  Swal.fire({
-    title: "Added to cart!",
-    text: "What would you like to do next?",
-    icon: "success",
-    showCancelButton: true,
-    confirmButtonText: "Proceed to Cart",
-    cancelButtonText: "Continue Shopping",
-    confirmButtonColor: "#2563EB",
-    cancelButtonColor: "#64748B",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      router.push("/cart"); // Adjust to your actual cart route path
+//     if (!product) return;
+
+//     const uniqueOrderNumber = `DIGI-${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 900 + 100)}`;
+
+//     const orderPayload = {
+//       orderNumber: uniqueOrderNumber,
+//       userId: currentUser.uid,
+//       product,
+//       discount: 0,
+//       currency: 'NGN',
+//       accountInfo: {
+//         name: userData?.fullName || currentUser.displayName || 'Valued Customer',
+//         email: currentUser.email,
+//         phone: userData?.phone || currentUser.phoneNumber || 'Not provided'
+//       },
+//       paymentType: 'ONLINE PAYMENT',
+//       paymentStatus: 'Paid',
+//       orderStatus: 'Completed',
+//       createdAt: serverTimestamp()
+//     };
+
+//     localStorage.setItem('pendingOrder', JSON.stringify(orderPayload));
+
+//     // Call your Paystack payment gateway function
+//     payWithPaystack(subaccount_code, product.amount, 'NGN');
+//     // finalizeOnlinePaymentOrder()
+//   };
+
+
+// 1. Separate function to check if the user is logged in
+  const checkAuthOrPrompt = () => {
+    if (!currentUser) {
+      Swal.fire({
+        // title: 'Authentication Required',
+        text: 'Please log in or sign up to purchase this digital product.',
+        // icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Go to Login',
+        cancelButtonText: 'Go to Sign Up',
+        reverseButtons: true,
+        confirmButtonColor: '#6366f1',
+        cancelButtonColor: '#a855f7'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push('/login');
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          router.push('/signup'); // Adjust route if your signup page has a different path
+        }
+      });
+      return false; // Not logged in
     }
-  });
+    return true; // Logged in
+  };
 
-  setTimeout(() => setFeedback(""), 3000);
-};
-  
+
+
+const handleBuyNow = async () => {
+  localStorage.setItem('orderCheck', JSON.stringify(product));
+  // 3. Run the authentication check right before triggering Paystack
+      if (!checkAuthOrPrompt()) return;
+
+    // if (!currentUser) {
+    //   Swal.fire('Authentication Required', 'Please log in to purchase this digital product.', 'warning');
+    //   router.push('/login');
+    //   return;
+    // }
+
+    if (!product) return;
+
+    // Ensure your product object has the seller's identifier (e.g., product.sellerUid or product.sellerEmail)
+    // Adjust `product.sellerUid` below to match whatever field name you use to store the creator/seller's ID in your product document.
+    const sellerId = product.creatorId || product.userId; 
+
+    if (!sellerId) {
+      Swal.fire('Error', 'Product seller information is missing.', 'error');
+      return;
+    }
+
+    try {
+      // 1. Fetch the seller's subaccount from the 'subaccounts' collection
+      const q = query(collection(db, "subaccounts"), where("sellerUid", "==", sellerId));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        Swal.fire('Payout Error', 'This seller has not set up their payout account yet.', 'error');
+        return;
+      }
+
+      // Get the subaccount code from the fetched document
+      const sellerSubaccountData = querySnapshot.docs[0].data();
+      const subaccount_code = sellerSubaccountData.subaccount_code;
+
+      if (!subaccount_code) {
+        Swal.fire('Payout Error', 'Invalid subaccount configuration for this seller.', 'error');
+        return;
+      }
+
+      // 2. Build the order payload
+      const uniqueOrderNumber = `DIGI-${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 900 + 100)}`;
+
+      const orderPayload = {
+        orderNumber: uniqueOrderNumber,
+        userId: currentUser.uid,
+        product,
+        discount: 0,
+        currency: 'NGN',
+        accountInfo: {
+          name: userData?.fullName || currentUser.displayName || 'Valued Customer',
+          email: currentUser.email,
+          phone: userData?.phone || currentUser.phoneNumber || 'Not provided'
+        },
+        paymentType: 'ONLINE PAYMENT',
+        paymentStatus: 'Paid',
+        orderStatus: 'Completed',
+        createdAt: serverTimestamp()
+      };
+
+      localStorage.setItem('pendingOrder', JSON.stringify(orderPayload));
+
+      
+
+      // 3. Call your Paystack payment gateway function with the fetched subaccount code
+      payWithPaystack(subaccount_code, product.amount, 'NGN');
+      console.log(subaccount_code); 
+
+    } catch (error) {
+      console.error("Error fetching seller subaccount:", error);
+      Swal.fire('Error', 'Could not initialize payment. Please try again.', 'error');
+    }
+  };
+
 
   if (loading) {
     return (
@@ -631,26 +847,6 @@ const handleToggleWishlist = async () => {
         </BackButton>
 
         <ProductGrid>
-          {/* <GalleryContainer>
-            <MainImageView>
-              <img src={activeImage} alt={product.name} />
-            </MainImageView>
-<p style={{ fontSize: "12px", color: "#64748B" }}>Click thumbnail to show enlarged image</p>
-            {product.images.length > 1 && (
-              <ThumbnailsRow>
-                {product.images.map((imgUrl, index) => (
-                  <Thumbnail
-                    key={index}
-                    $active={selectedImageIndex === index}
-                    onClick={() => setSelectedImageIndex(index)}
-                  >
-                    <img src={imgUrl} alt={`${product.name} thumbnail ${index + 1}`} />
-                  </Thumbnail>
-                ))}
-              </ThumbnailsRow>
-            )}
-          </GalleryContainer> */}
-
 
 <GalleryContainer>
             <ImageWrapper>
@@ -664,8 +860,7 @@ const handleToggleWishlist = async () => {
               <img src={activeImage} alt={product.name} />
             </ImageWrapper>
             
-            <p style={{ fontSize: "12px", color: "#64748B" }}>Click thumbnail to show enlarged image</p>
-
+           
             {product.images.length > 1 && (
               <ThumbnailsRow>
                 {product.images.map((imgUrl, index) => (
@@ -683,7 +878,7 @@ const handleToggleWishlist = async () => {
 
 
           <InfoContainer>
-            <CategoryBadge>{categoryName}</CategoryBadge>
+            {/* <CategoryBadge>{categoryName}</CategoryBadge> */}
 
             <ProductTitle>
               {product.name.charAt(0).toUpperCase() + product.name.slice(1)}
@@ -694,9 +889,9 @@ const handleToggleWishlist = async () => {
               <PriceText>
                 ₦{product.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </PriceText>
-              <StockBadge $inStock={isInStock}>
+              {/* <StockBadge $inStock={isInStock}>
                 {product.neverFinishes ? "In Stock" : product.quantity > 0 ? `${product.quantity} left` : "Out of Stock"}
-              </StockBadge>
+              </StockBadge> */}
             </PriceRow>
 
             <DescriptionSection>
@@ -705,21 +900,28 @@ const handleToggleWishlist = async () => {
             </DescriptionSection>
 
             <MetaGrid>
-              <MetaItem>
+              {/* <MetaItem>
                 <span>Availability</span>
                 <span>{isInStock ? "Ready" : "Unavailable"}</span>
-              </MetaItem>
+              </MetaItem> */}
               <MetaItem>
                 <span>Added On</span>
                 <span>{product.createdAt}</span>
               </MetaItem>
             </MetaGrid>
 
+            {/* --- Creator Storefront Button --- */}
+            {product.emailPrefix && (
+              <StoreFrontButton onClick={() => router.push(`/${product.emailPrefix}`)}>
+                🏪 Visit Creator&apos;s Store ({product.emailPrefix})
+              </StoreFrontButton>
+            )}
+
             {feedback && <StatusMessage>{feedback}</StatusMessage>}
 
             <ActionsRow>
-              <AddToCartButton onClick={handleAddToCart}>
-                🛒 Add to Cart
+              <AddToCartButton onClick={handleBuyNow}>
+                🛒 Buy Now
               </AddToCartButton>
            <WishlistButton $wishlisted={isWishlisted} onClick={handleToggleWishlist}>
                 {isWishlisted ? "❤️ Saved in Wishlist" : "🤍 Wishlist"}

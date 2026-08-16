@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "@/firebaseConfig";
+import { db, auth } from "@/firebaseConfig";
 import { 
   collection, 
   getDocs, 
@@ -15,14 +15,15 @@ import styled from "styled-components";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
-// 🎨 BEES INTERIOR THEME COLORS
-const Blue = "#2563eb";
+// 🎨 ECHOBYTE THEME COLORS
+const PrimaryColor = "#6366f1";
+const SecondaryColor = "#a855f7";
 const Dark = "#0f172a";
-const Border = "#e5eaf2";
+const Border = "#e2e8f0";
 const White = "#ffffff";
-const Gold = "#D4AF37";
-const TextMuted = "#475569";
+const TextMuted = "#64748b";
 const Danger = "#ef4444";
+const AccentGradient = "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)";
 
 // 🌟 Styled Components (Strict max 10px spacing/gaps/margins/padding rule)
 const Container = styled.div`
@@ -36,23 +37,21 @@ const Container = styled.div`
 `;
 
 const HeaderBanner = styled.div`
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+  background: ${AccentGradient};
   color: ${White};
   padding: 10px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
 `;
 
 const ColorfulTitle = styled.h1`
   font-size: 1.6rem;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(90deg, #ffffff 0%, #fef08a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: ${White};
   letter-spacing: -0.5px;
 `;
 
@@ -76,7 +75,7 @@ const ColorfulSectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+  background: ${AccentGradient};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
@@ -92,14 +91,16 @@ const SearchInput = styled.input`
   max-width: 100%;
   box-sizing: border-box;
   margin: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${PrimaryColor};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 `;
 
 const PrimaryButton = styled.button`
-  background: linear-gradient(135deg, ${Blue} 0%, #1d4ed8 100%);
+  background: ${AccentGradient};
   color: ${White};
   border: none;
   border-radius: 8px;
@@ -110,57 +111,25 @@ const PrimaryButton = styled.button`
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-  transition: transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.35);
   }
 `;
-
-// const ProductsGrid = styled.div`
-//   display: grid;
-//   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-//   gap: 10px;
-
-// `;
-
-// const ProductCard = styled.div`
-//   background: ${White};
-//   border-radius: 10px;
-//   padding: 10px;
-//   border: 1px solid ${Border};
-//   border-left: 4px solid ${Gold};
-//   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
-//   display: flex;
-//   flex-direction: column;
-//   gap: 10px;
-//   cursor: pointer;
-//   transition: transform 0.2s ease, box-shadow 0.2s ease;
-//   max-width:250px;
-
-//   &:hover {
-//     transform: translateY(-2px);
-//     box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
-//   }
-
-//   @media (max-width: 768px) {
-  
-//   }
-
-
-// `;
 
 const ProductsGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  justify-content: center; /* Centers cards if there's an odd number, use flex-start if you want them left-aligned */
+  justify-content: center;
   width: 100%;
   box-sizing: border-box;
 
   @media (max-width: 768px) {
-    gap: 4px; /* Adjust or set to 0px for zero space between cards */
+    gap: 4px;
   }
 `;
 
@@ -169,32 +138,29 @@ const ProductCard = styled.div`
   border-radius: 10px;
   padding: 10px;
   border: 1px solid ${Border};
-  border-left: 4px solid ${Gold};
+  border-left: 4px solid ${PrimaryColor};
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
   display: flex;
   flex-direction: column;
   gap: 10px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-  /* 📏 Enforce strict sizing and max-width */
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
   max-width: 250px;
   box-sizing: border-box;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    border-color: ${PrimaryColor};
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.1);
   }
 
   @media (max-width: 768px) {
     padding: 8px;
     gap: 6px;
-    /* Calculates exact 50% width minus half of your mobile gap so exactly 2 fit per row */
     max-width: calc(50% - 2px); 
   }
 `;
-
 
 const ProductImageContainer = styled.div`
   width: 100%;
@@ -229,13 +195,17 @@ const ProductName = styled.h3`
 const ProductAmount = styled.span`
   font-size: 0.95rem;
   font-weight: 800;
-  color: ${Blue};
+  color: ${PrimaryColor};
 `;
 
-const ProductStock = styled.span`
-  font-size: 0.8rem;
+const ProductLinkBadge = styled.a`
+  font-size: 0.75rem;
   font-weight: 600;
-  color: ${TextMuted};
+  color: ${PrimaryColor};
+  text-decoration: underline;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const ButtonGroup = styled.div`
@@ -246,8 +216,8 @@ const ButtonGroup = styled.div`
 `;
 
 const EditButton = styled.button`
-  background: rgba(37, 99, 235, 0.1);
-  color: ${Blue};
+  background: rgba(99, 102, 241, 0.1);
+  color: ${PrimaryColor};
   border: none;
   border-radius: 6px;
   padding: 6px 10px;
@@ -256,7 +226,7 @@ const EditButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: rgba(37, 99, 235, 0.2);
+    background: rgba(99, 102, 241, 0.2);
   }
 `;
 
@@ -317,9 +287,19 @@ const ModalTitle = styled.h3`
   margin: 0;
   font-size: 1.1rem;
   font-weight: 800;
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+  background: ${AccentGradient};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+`;
+
+const InfoBox = styled.div`
+  background: #f8fafc;
+  border: 1px solid ${Border};
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 0.8rem;
+  color: ${TextMuted};
+  line-height: 1.4;
 `;
 
 const StyledInput = styled.input`
@@ -332,10 +312,51 @@ const StyledInput = styled.input`
   width: 100%;
   box-sizing: border-box;
   margin: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${PrimaryColor};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
+`;
+
+const UrlInputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid ${Border};
+  border-radius: 6px;
+  background: #f8fafc;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus-within {
+    border-color: ${PrimaryColor};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: ${White};
+  }
+`;
+
+const UrlPrefix = styled.span`
+  background: ${Border};
+  color: ${TextMuted};
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  user-select: none;
+  border-right: 1px solid ${Border};
+`;
+
+const UrlFieldInput = styled.input`
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  outline: none;
+  color: ${Dark};
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
 `;
 
 const StyledTextarea = styled.textarea`
@@ -350,30 +371,15 @@ const StyledTextarea = styled.textarea`
   resize: vertical;
   min-height: 60px;
   margin: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${PrimaryColor};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 `;
 
-const CheckboxRow = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: ${TextMuted};
-  cursor: pointer;
-  margin: 0;
-`;
-
-// 🌟 Custom Styled 4-Slot Image Upload Grid
-const ImageSlotsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-`;
-
+// 🌟 Single Image Upload Slot Card
 const ImageSlotCard = styled.div`
   background: #f8fafc;
   border: 1px dashed ${Border};
@@ -385,7 +391,7 @@ const ImageSlotCard = styled.div`
   justify-content: center;
   gap: 6px;
   position: relative;
-  min-height: 100px;
+  min-height: 120px;
   box-sizing: border-box;
 `;
 
@@ -401,23 +407,23 @@ const HiddenFileInput = styled.input`
 `;
 
 const UploadButtonLabel = styled.label`
-  background: ${Blue};
+  background: ${PrimaryColor};
   color: ${White};
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 5px 8px;
+  padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
   text-align: center;
 
   &:hover {
-    background: #1d4ed8;
+    background: #4f46e5;
   }
 `;
 
 const SlotPreviewWrapper = styled.div`
   width: 100%;
-  height: 80px;
+  height: 100px;
   border-radius: 6px;
   overflow: hidden;
   position: relative;
@@ -470,7 +476,7 @@ const CancelButton = styled.button`
 `;
 
 const SaveButton = styled.button`
-  background: ${Blue};
+  background: ${PrimaryColor};
   color: ${White};
   border: none;
   border-radius: 6px;
@@ -480,22 +486,9 @@ const SaveButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background: #1d4ed8;
+    background: #4f46e5;
   }
 `;
-
-
-const ProductcategoryBadge = styled.span`
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: ${Blue};
-  background: rgba(37, 99, 235, 0.1);
-  padding: 3px 8px;
-  border-radius: 4px;
-  width: fit-content;
-`;
-
-
 
 // 🔹 Compression utility function
 const compressImage = (file, maxSizeKB = 100) => {
@@ -565,45 +558,19 @@ export default function ProductsCrudPage() {
     name: "",
     description: "",
     amount: "",
-    quantity: "",
-    neverFinishes: false,
-    categoryId: "", // 📁 added category reference
+    urlPath: "", // stores the user portion after https://
   });
 
-  // 4 individual slots for files and previews
-  const [imageFiles, setImageFiles] = useState([null, null, null, null]);
-  const [imagePreviews, setImagePreviews] = useState(["", "", "", ""]);
-  // Keep track of pre-existing Cloudinary URL strings when editing
-  const [existingImageUrls, setExistingImageUrls] = useState(["", "", "", ""]);
-// 📁 Add categories state
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-const [sortOrder, setSortOrder] = useState(""); // "" | "low-high" | "high-low"
+  // Single image states
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [existingImageUrl, setExistingImageUrl] = useState("");
 
-
-  // Fetch categories from Firestore
-  const fetchCategories = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "categories"));
-      const list = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCategories(list);
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-    }
-  };
+  const [sortOrder, setSortOrder] = useState("");
 
   useEffect(() => {
     fetchProducts();
-    fetchCategories(); // 📁 Call this on mount
   }, []);
-
-
-
-
-
 
   const fetchProducts = async () => {
     try {
@@ -621,59 +588,36 @@ const [sortOrder, setSortOrder] = useState(""); // "" | "low-high" | "high-low"
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const handleSlotFileChange = (index, e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const newFiles = [...imageFiles];
-    newFiles[index] = file;
-    setImageFiles(newFiles);
-
-    const newPreviews = [...imagePreviews];
-    newPreviews[index] = URL.createObjectURL(file);
-    setImagePreviews(newPreviews);
-
-    // Clear old existing URL for this slot if replacing
-    const newExisting = [...existingImageUrls];
-    newExisting[index] = "";
-    setExistingImageUrls(newExisting);
-
-    e.target.value = ""; // Reset input
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setExistingImageUrl("");
+    e.target.value = "";
   };
 
-  const handleRemoveSlot = (index) => {
-    const newFiles = [...imageFiles];
-    newFiles[index] = null;
-    setImageFiles(newFiles);
-
-    const newPreviews = [...imagePreviews];
-    newPreviews[index] = "";
-    setImagePreviews(newPreviews);
-
-    const newExisting = [...existingImageUrls];
-    newExisting[index] = "";
-    setExistingImageUrls(newExisting);
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview("");
+    setExistingImageUrl("");
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      if (!form.name || !form.amount) {
+      if (!form.name || !form.amount || !form.urlPath) {
         return Swal.fire({
           icon: "warning",
-          text: "Please provide product name and amount.",
+          text: "Please provide product name, amount, and valid product/service URL.",
         });
       }
 
-      // First image slot is compulsory
-      if (!imageFiles[0] && !existingImageUrls[0]) {
+      if (!imageFile && !existingImageUrl) {
         return Swal.fire({
           icon: "warning",
-          text: "The first image is compulsory. Please select an image for Slot 1.",
+          text: "Product image is compulsory. Please select an image.",
         });
       }
 
@@ -683,47 +627,43 @@ const [sortOrder, setSortOrder] = useState(""); // "" | "low-high" | "high-low"
         didOpen: () => Swal.showLoading(),
       });
 
-      let finalImageUrls = [];
+      let finalImageUrl = existingImageUrl;
 
-      for (let i = 0; i < 4; i++) {
-        if (imageFiles[i]) {
-          // Compress to max 100kb
-          const compressedBlob = await compressImage(imageFiles[i], 100);
+      if (imageFile) {
+        const compressedBlob = await compressImage(imageFile, 100);
 
-          const data = new FormData();
-          data.append("file", compressedBlob, `product_${i}.jpg`);
-          data.append("upload_preset", "bees_interior");
-          data.append("folder", "products");
+        const data = new FormData();
+        data.append("file", compressedBlob, "product.jpg");
+        data.append("upload_preset", "echobyte_digital_store_upload");
+        data.append("folder", "products");
 
-          const res = await fetch(
-            "https://api.cloudinary.com/v1_1/aqxyleoh/image/upload",
-            {
-              method: "POST",
-              body: data,
-            }
-          );
-
-          const result = await res.json();
-
-          if (!res.ok) {
-            throw new Error(result.error?.message || `Image upload failed for slot ${i + 1}`);
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/ddh4wrbok/image/upload",
+          {
+            method: "POST",
+            body: data,
           }
+        );
 
-          finalImageUrls.push(result.secure_url);
-        } else if (existingImageUrls[i]) {
-          finalImageUrls.push(existingImageUrls[i]);
+        const result = await res.json();
+
+        if (!res.ok) {
+          throw new Error(result.error?.message || "Image upload failed");
         }
+
+        finalImageUrl = result.secure_url;
       }
+
+      const fullUrl = `https://${form.urlPath.trim()}`;
 
       const payload = {
         name: form.name,
         description: form.description,
         amount: Number(form.amount),
-        quantity: form.neverFinishes ? 0 : Number(form.quantity || 0),
-        neverFinishes: form.neverFinishes,
-        images: finalImageUrls,
-        image: finalImageUrls[0] || "", // Main primary thumbnail is the 1st image
-        categoryId: form.categoryId,
+        url: fullUrl,
+        userId: auth.currentUser?.uid,
+        image: finalImageUrl,
+        images: [finalImageUrl],
       };
 
       if (editingId) {
@@ -743,12 +683,11 @@ const [sortOrder, setSortOrder] = useState(""); // "" | "low-high" | "high-low"
         showConfirmButton: false,
       });
 
-      // Reset modal state
       setShowModal(false);
-      setForm({ name: "", description: "", amount: "", quantity: "", neverFinishes: false });
-      setImageFiles([null, null, null, null]);
-      setImagePreviews(["", "", "", ""]);
-      setExistingImageUrls(["", "", "", ""]);
+      setForm({ name: "", description: "", amount: "", urlPath: "" });
+      setImageFile(null);
+      setImagePreview("");
+      setExistingImageUrl("");
       setEditingId(null);
       fetchProducts();
     } catch (error) {
@@ -762,39 +701,36 @@ const [sortOrder, setSortOrder] = useState(""); // "" | "low-high" | "high-low"
   };
 
   const handleEdit = (item, e) => {
-    e.stopPropagation(); // Prevent card navigation click
-    const itemImages = item.images || (item.image ? [item.image] : []);
+    e.stopPropagation();
+    const itemImg = item.image || item.images?.[0] || "";
     
+    // Extract path after https:// if stored with prefix
+    let cleanUrl = item.url || "";
+    if (cleanUrl.startsWith("https://")) {
+      cleanUrl = cleanUrl.replace("https://", "");
+    } else if (cleanUrl.startsWith("http://")) {
+      cleanUrl = cleanUrl.replace("http://", "");
+    }
+
     setForm({
       name: item.name || "",
       description: item.description || "",
       amount: item.amount || "",
-      quantity: item.quantity || "",
-      neverFinishes: item.neverFinishes || false,
-      categoryId: item.categoryId || item.category || "",
+      urlPath: cleanUrl,
     });
     setEditingId(item.id);
 
-    const slotUrls = ["", "", "", ""];
-    const slotPreviews = ["", "", "", ""];
-    itemImages.forEach((url, idx) => {
-      if (idx < 4) {
-        slotUrls[idx] = url;
-        slotPreviews[idx] = url;
-      }
-    });
-
-    setExistingImageUrls(slotUrls);
-    setImagePreviews(slotPreviews);
-    setImageFiles([null, null, null, null]);
+    setExistingImageUrl(itemImg);
+    setImagePreview(itemImg);
+    setImageFile(null);
     setShowModal(true);
   };
 
   const handleDelete = async (id, e) => {
-    e.stopPropagation(); // Prevent card navigation click
+    e.stopPropagation();
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: "This product will be deleted permanently.",
+      text: "This item will be deleted permanently.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: Danger,
@@ -813,132 +749,75 @@ const [sortOrder, setSortOrder] = useState(""); // "" | "low-high" | "high-low"
     }
   };
 
-  // const filteredData = products.filter((item) =>
-  //   item.name?.toLowerCase().includes(search.toLowerCase())
-  // );
-
   const filteredData = products
-  .filter((item) => {
-    const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = selectedCategory === "" || item.categoryId === selectedCategory;
-    return matchesSearch && matchesCategory;
-  })
-  .sort((a, b) => {
-    if (sortOrder === "low-high") return Number(a.amount || 0) - Number(b.amount || 0);
-    if (sortOrder === "high-low") return Number(b.amount || 0) - Number(a.amount || 0);
-    return 0;
-  });
-
-
-
-// Helper to get category name by ID
-const getCategoryName = (catId) => {
-  const found = categories.find((cat) => cat.id === catId);
-  return found ? (found.name || found.title) : "Uncategorized";
-};
-
-  
+    .filter((item) => {
+      const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase());
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      if (sortOrder === "low-high") return Number(a.amount || 0) - Number(b.amount || 0);
+      if (sortOrder === "high-low") return Number(b.amount || 0) - Number(a.amount || 0);
+      return 0;
+    });
 
   if (loading) {
-    return <LoadingContainer>Loading products...</LoadingContainer>;
+    return <LoadingContainer>Loading digital products & services...</LoadingContainer>;
   }
 
   return (
     <Container>
       <HeaderBanner>
-        <ColorfulTitle>Product Management 🛍️</ColorfulTitle>
-        <ColorfulSub>Manage inventory items, upload compressed product visuals, and track quantities.</ColorfulSub>
+        <ColorfulTitle>Digital Products & Services Management 🛍️</ColorfulTitle>
+        <ColorfulSub>Post downloadable files, links, courses, or remote booking services securely.</ColorfulSub>
       </HeaderBanner>
 
       <ActionRow>
         <ColorfulSectionTitle>Inventory ({filteredData.length})</ColorfulSectionTitle>
-        {/* <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
           <SearchInput
             type="text"
-            placeholder="Search by product name..."
+            placeholder="Search by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            style={{
+              border: `1px solid ${Border}`,
+              borderRadius: "8px",
+              padding: "8px 10px",
+              fontSize: "0.9rem",
+              outline: "none",
+              color: Dark,
+              background: White,
+              boxSizing: "border-box",
+              margin: 0,
+            }}
+          >
+            <option value="">Sort by Price</option>
+            <option value="low-high">Price: Low to High</option>
+            <option value="high-low">Price: High to Low</option>
+          </select>
           <PrimaryButton onClick={() => {
             setEditingId(null);
-            setForm({ name: "", description: "", amount: "", quantity: "", neverFinishes: false });
-            setImageFiles([null, null, null, null]);
-            setImagePreviews(["", "", "", ""]);
-            setExistingImageUrls(["", "", "", ""]);
+            setForm({ name: "", description: "", amount: "", urlPath: "" });
+            setImageFile(null);
+            setImagePreview("");
+            setExistingImageUrl("");
             setShowModal(true);
           }}>
-            <span>+ Add Product</span>
+            <span>+ Add Item</span>
           </PrimaryButton>
-        </div> */}
-
-<div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-  <SearchInput
-    type="text"
-    placeholder="Search by product name..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-  />
-  <select
-    value={selectedCategory}
-    onChange={(e) => setSelectedCategory(e.target.value)}
-    style={{
-      border: `1px solid ${Border}`,
-      borderRadius: "8px",
-      padding: "8px 10px",
-      fontSize: "0.9rem",
-      outline: "none",
-      color: Dark,
-      background: White,
-      boxSizing: "border-box",
-      margin: 0,
-    }}
-  >
-    <option value="">All Categories</option>
-    {categories.map((cat) => (
-      <option key={cat.id} value={cat.id}>
-        {cat.name || cat.title}
-      </option>
-    ))}
-  </select>
-  <select
-    value={sortOrder}
-    onChange={(e) => setSortOrder(e.target.value)}
-    style={{
-      border: `1px solid ${Border}`,
-      borderRadius: "8px",
-      padding: "8px 10px",
-      fontSize: "0.9rem",
-      outline: "none",
-      color: Dark,
-      background: White,
-      boxSizing: "border-box",
-      margin: 0,
-    }}
-  >
-    <option value="">Sort by Price</option>
-    <option value="low-high">Price: Low to High</option>
-    <option value="high-low">Price: High to Low</option>
-  </select>
- <PrimaryButton onClick={() => {
-            setEditingId(null);
-            setForm({ name: "", description: "", amount: "", quantity: "", neverFinishes: false });
-            setImageFiles([null, null, null, null]);
-            setImagePreviews(["", "", "", ""]);
-            setExistingImageUrls(["", "", "", ""]);
-            setShowModal(true);
-          }}>
-            <span>+ Add Product</span>
-          </PrimaryButton>
-</div>
-
+        </div>
       </ActionRow>
 
       {filteredData.length === 0 ? (
-        <LoadingContainer>No products found.</LoadingContainer>
+        <LoadingContainer>No digital products or services found.</LoadingContainer>
       ) : (
         <ProductsGrid>
           {filteredData.map((item) => {
-            const displayImg = item.images?.[0] || item.image || "https://placehold.co/400x300?text=No+Image";
+            const displayImg = item.image || item.images?.[0] || "https://placehold.co/400x300?text=No+Image";
             return (
               <ProductCard key={item.id} onClick={() => router.push(`/productdetail/${item.id}`)}>
                 <ProductImageContainer>
@@ -946,19 +825,14 @@ const getCategoryName = (catId) => {
                 </ProductImageContainer>
                 <ProductInfo>
                   <ProductName>
-    {item.name ? item.name.charAt(0).toUpperCase() + item.name.slice(1) : ""}
-  </ProductName>
-                 {/* 📁 Display the category name here with the first letter capitalized */}
-  <ProductcategoryBadge>
-    {(() => {
-      const name = getCategoryName(item.categoryId);
-      return name ? name.charAt(0).toUpperCase() + name.slice(1) : "";
-    })()}
-  </ProductcategoryBadge>
-                 <ProductAmount>₦{Number(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</ProductAmount>
-                  <ProductStock>
-                    {item.neverFinishes ? "∞ In Unlimited Stock" : `Stock: ${item.quantity ?? 0}`}
-                  </ProductStock>
+                    {item.name ? item.name.charAt(0).toUpperCase() + item.name.slice(1) : ""}
+                  </ProductName>
+                  <ProductAmount>₦{Number(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</ProductAmount>
+                  {item.url && (
+                    <ProductLinkBadge href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                      Access Link ↗
+                    </ProductLinkBadge>
+                  )}
                 </ProductInfo>
                 <ButtonGroup>
                   <EditButton onClick={(e) => handleEdit(item, e)}>Edit</EditButton>
@@ -974,52 +848,53 @@ const getCategoryName = (catId) => {
       {showModal && (
         <ModalOverlay onClick={() => setShowModal(false)}>
           <ModalContainer onClick={(e) => e.stopPropagation()}>
-            <ModalTitle>{editingId ? "Edit Product" : "Create New Product"}</ModalTitle>
+            <ModalTitle>{editingId ? "Edit Digital Product or Service" : "Post New Digital Product or Service"}</ModalTitle>
+            
+            <InfoBox>
+              💡 <strong>Guidance:</strong><br />
+              • <strong>Digital Product:</strong> E-books, downloadable templates, source code files, or video assets hosted in cloud storage.<br />
+              • <strong>Digital Service:</strong> Remote consultations, scheduled coaching calls, freelance deliverables, or virtual workshop registrations.<br />
+              </InfoBox>
+
             <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "10px", margin: 0 }}>
               <StyledInput
                 type="text"
-                placeholder="Product Name"
+                placeholder="Product or Service Name (e.g. Next.js SaaS Starter Kit)"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
               />
 
-            {/* 📁 Category Selection Dropdown */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <label style={{ fontSize: "0.85rem", fontWeight: "700", color: Dark }}>
-                  Product Category (Required)
-                </label>
-                <select
-                  value={form.categoryId}
-                  onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                  required
-                  style={{
-                    border: `1px solid ${Border}`,
-                    borderRadius: "6px",
-                    padding: "8px 10px",
-                    fontSize: "0.9rem",
-                    outline: "none",
-                    color: Dark,
-                    background: White,
-                    width: "100%",
-                    boxSizing: "border-box",
-                    margin: 0,
-                  }}
-                >
-                  <option value="">Select a category...</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name || cat.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <StyledTextarea
-                placeholder="Product Description"
+                placeholder="Description: Outline what the buyer gets, requirements, and instructions..."
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "700", color: Dark }}>
+                  Product or Service Link (Secured with https://). 
+                </label>
+                <p style={{fontSize:"0.7rem"}}>Enter the direct download link or meeting room link, or community where users access your product/service after purchase</p>
+                <UrlInputWrapper>
+                  <UrlPrefix>https://</UrlPrefix>
+                  <UrlFieldInput
+                    type="text"
+                    placeholder="example.com/download-link or meet.google.com/xyz"
+                    value={form.urlPath}
+                    onChange={(e) => {
+                      // Prevent user from prepending or tampering with https:// manually
+                      let val = e.target.value;
+                      if (val.startsWith("https://")) {
+                        val = val.replace("https://", "");
+                      }
+                      setForm({ ...form, urlPath: val });
+                    }}
+                    required
+                  />
+                </UrlInputWrapper>
+              </div>
+
               <StyledInput
                 type="number"
                 placeholder="Amount (₦)"
@@ -1027,70 +902,40 @@ const getCategoryName = (catId) => {
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 required
               />
-              
-              {!form.neverFinishes && (
-                <StyledInput
-                  type="number"
-                  placeholder="Quantity"
-                  value={form.quantity}
-                  onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                />
-              )}
-
-              <CheckboxRow>
-                <input
-                  type="checkbox"
-                  checked={form.neverFinishes}
-                  onChange={(e) => setForm({ ...form, neverFinishes: e.target.checked })}
-                />
-                Product does not finish (Unlimited Stock)
-              </CheckboxRow>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <span style={{ fontSize: "0.85rem", fontWeight: "700", color: Dark }}>
-                  Product Images (Max 4 slots, compressed to 100kb max each):
+                  Visual Flyer or Cover Image (Required):
                 </span>
 
-                <ImageSlotsGrid>
-                  {[0, 1, 2, 3].map((slotIndex) => {
-                    const hasImage = imagePreviews[slotIndex] !== "";
-                    const isMain = slotIndex === 0;
-
-                    return (
-                      <ImageSlotCard key={slotIndex}>
-                        <SlotLabel>
-                          {isMain ? "Main Image (Required)" : `Image ${slotIndex + 1} (Optional)`}
-                        </SlotLabel>
-
-                        {hasImage ? (
-                          <SlotPreviewWrapper>
-                            <ProductImage src={imagePreviews[slotIndex]} alt={`Slot ${slotIndex + 1}`} />
-                            <RemoveSlotButton type="button" onClick={() => handleRemoveSlot(slotIndex)}>
-                              ✕
-                            </RemoveSlotButton>
-                          </SlotPreviewWrapper>
-                        ) : (
-                          <>
-                            <HiddenFileInput
-                              id={`slot-file-${slotIndex}`}
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleSlotFileChange(slotIndex, e)}
-                            />
-                            <UploadButtonLabel htmlFor={`slot-file-${slotIndex}`}>
-                              Select Image
-                            </UploadButtonLabel>
-                          </>
-                        )}
-                      </ImageSlotCard>
-                    );
-                  })}
-                </ImageSlotsGrid>
+                <ImageSlotCard>
+                  <SlotLabel>Product Visual</SlotLabel>
+                  {imagePreview ? (
+                    <SlotPreviewWrapper>
+                      <ProductImage src={imagePreview} alt="Product Preview" />
+                      <RemoveSlotButton type="button" onClick={handleRemoveImage}>
+                        ✕
+                      </RemoveSlotButton>
+                    </SlotPreviewWrapper>
+                  ) : (
+                    <>
+                      <HiddenFileInput
+                        id="product-file-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                      <UploadButtonLabel htmlFor="product-file-input">
+                        Select Image
+                      </UploadButtonLabel>
+                    </>
+                  )}
+                </ImageSlotCard>
               </div>
 
               <ModalActions>
                 <CancelButton type="button" onClick={() => setShowModal(false)}>Cancel</CancelButton>
-                <SaveButton type="submit">{editingId ? "Save Changes" : "Create Product"}</SaveButton>
+                <SaveButton type="submit">{editingId ? "Save Changes" : "Create Item"}</SaveButton>
               </ModalActions>
             </form>
           </ModalContainer>

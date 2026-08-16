@@ -7,16 +7,17 @@ import Swal from "sweetalert2";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebaseConfig";
 
-// 🎨 BEES INTERIOR THEME COLORS
-const Blue = "#2563eb";
+// 🎨 ECHOBYTE DIGITAL STORE THEME COLORS
+const PrimaryColor = "#6366f1";
+const SecondaryColor = "#a855f7";
 const Dark = "#0f172a";
-const Border = "#e5eaf2";
+const Border = "#e2e8f0";
 const White = "#ffffff";
-const Gold = "#D4AF37";
-const TextMuted = "#475569";
+const TextMuted = "#64748b";
 const LightBg = "#f8fafc";
+const AccentGradient = "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)";
 
-// 🌟 Styled Components (Matching the SignUp layout & 10px spacing guidelines)
+// 🌟 Styled Components (Matching the SignUp layout & styling standards)
 const PageContainer = styled.div`
   min-height: 100vh;
   display: flex;
@@ -32,7 +33,7 @@ const AuthWrapper = styled.div`
   width: 100%;
   max-width: 1000px;
   background: ${White};
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid ${Border};
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
   overflow: hidden;
@@ -43,9 +44,9 @@ const AuthWrapper = styled.div`
 `;
 
 const BrandingSide = styled.div`
-  background: ${Blue};
+  background: ${PrimaryColor};
   color: ${White};
-  padding: 10px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -56,7 +57,7 @@ const BrandingSide = styled.div`
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.2) 0%, rgba(212, 175, 55, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
     z-index: 1;
   }
 `;
@@ -66,7 +67,7 @@ const BrandingContent = styled.div`
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin: auto 0;
 `;
 
@@ -77,7 +78,7 @@ const BrandLogo = styled.h3`
   color: ${White};
 
   span {
-    color: ${Gold};
+    color: #f472b6;
   }
 `;
 
@@ -95,7 +96,7 @@ const Subtext = styled.p`
 `;
 
 const FormSide = styled.div`
-  padding: 10px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -105,27 +106,27 @@ const FormSide = styled.div`
 const FormHeader = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 16px;
 `;
 
 const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: ${Blue};
+  color: ${Dark};
   text-align: left;
 `;
 
 const FormGrid = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 `;
 
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 `;
 
 const Label = styled.label`
@@ -137,17 +138,18 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
-  padding: 10px;
+  padding: 10px 14px;
   border: 1px solid ${Border};
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.9rem;
   background: ${White};
   color: ${Dark};
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus {
-    border-color: ${Blue};
+    border-color: ${PrimaryColor};
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 `;
 
@@ -158,14 +160,14 @@ const PasswordWrapper = styled.div`
 
 const EyeButton = styled.button`
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
   cursor: pointer;
   font-size: 0.8rem;
-  color: ${Blue};
+  color: ${PrimaryColor};
   font-weight: 600;
 
   &:hover {
@@ -175,31 +177,33 @@ const EyeButton = styled.button`
 
 const Button = styled.button`
   width: 100%;
-  background: linear-gradient(135deg, ${Blue} 0%, ${Gold} 100%);
+  background: ${AccentGradient};
   color: ${White};
-  padding: 10px;
+  padding: 12px;
   font-size: 0.95rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    opacity: 0.9;
+    opacity: 0.95;
     transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
   }
 `;
 
 const LinkText = styled.p`
-  margin-top: 10px;
+  margin-top: 12px;
   cursor: pointer;
   color: ${TextMuted};
   font-size: 0.9rem;
   text-align: center;
 
   span {
-    color: ${Blue};
+    color: ${PrimaryColor};
     font-weight: 600;
 
     &:hover {
@@ -219,6 +223,7 @@ const LoadingContainer = styled.div`
   font-weight: 600;
 `;
 
+
 // ✨ LOGIN COMPONENT
 export default function UserLogin() {
   const router = useRouter();
@@ -236,7 +241,7 @@ export default function UserLogin() {
 
     Swal.fire({
       title: "Please wait...",
-      text: "Logging into Bees Interior...",
+      text: "Logging in...",
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
@@ -246,9 +251,29 @@ export default function UserLogin() {
       await signInWithEmailAndPassword(auth, email, password);
       Swal.fire("Success ✅", "Logged in successfully", "success");
       router.push("/dashboard");
-    } catch (error) {
-      Swal.fire("Login Failed ❌", error.message, "error");
+  } catch (error) {
+    let errorMessage = "An unexpected error occurred. Please try again.";
+
+    // Map Firebase error codes to clean, user-friendly messages
+    if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
+      errorMessage = "Invalid email or password. Please check your credentials and try again.";
+    } else if (error.code === "auth/too-many-requests") {
+      errorMessage = "Access temporarily blocked due to too many failed login attempts. Please try again later.";
+    } else if (error.code === "auth/network-request-failed") {
+      errorMessage = "Network error. Please check your internet connection.";
     }
+
+    Swal.fire({
+      title: "Login Failed ❌",
+      text: errorMessage,
+      icon: "error",
+      confirmButtonColor: PrimaryColor, // or Blue depending on your theme variables
+      background: White,
+      color: Dark,
+    });
+    
+    console.error(error); // Keeps the technical log for you in the developer console
+  }
   };
 
   useEffect(() => {
@@ -267,19 +292,18 @@ export default function UserLogin() {
     <PageContainer>
       <AuthWrapper>
         {/* Left Visual Branding Panel */}
-        <BrandingSide>
-          <BrandLogo>
-            BEES <span>INTERIOR</span>
-          </BrandLogo>
-          <BrandingContent>
-            <Headline>Welcome Back to Your Sanctuary</Headline>
-            <Subtext>
-              Log in to access your luxury interior collections, track consultations, and manage your personalized living spaces.
-            </Subtext>
-          </BrandingContent>
-          <div />
-        </BrandingSide>
-
+<BrandingSide>
+  <BrandLogo>
+    ECHOBYTE <span>DIGITAL STORE</span>
+  </BrandLogo>
+  <BrandingContent>
+    <Headline>Welcome Back to Your Workspace</Headline>
+    <Subtext>
+      Log in to access your digital solutions, track your active orders, and manage your tech ecosystem effortlessly.
+    </Subtext>
+  </BrandingContent>
+  <div />
+</BrandingSide>
         {/* Right Form Panel */}
         <FormSide>
           <FormHeader>

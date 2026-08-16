@@ -3,22 +3,16 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock, 
   Send, 
-  Sparkles, 
-  CheckCircle, 
-  Building2
+  Sparkles
 } from "lucide-react";
 import Swal from "sweetalert2";
 
-// Animations
-const fadeIn = keyframes`
+// Sleek Entrance Animation
+const slideUp = keyframes`
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -26,268 +20,192 @@ const fadeIn = keyframes`
   }
 `;
 
-// Styled Components (Blue & Gold Theme & Maximum 10px Padding/Margin/Gap)
-const ContactPageWrapper = styled.div`
+// Clean Light Theme for EchoByte Concept (Centered Form Layout)
+const PageContainer = styled.div`
   min-height: 100vh;
-  background-color: #f8fafc;
+  background: #f8fafc;
   color: #0f172a;
-  padding: 10px;
-  
-  @media (min-width: 640px) {
-    padding: 10px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+
+  @media (min-width: 768px) {
+    padding: 40px 24px;
   }
 `;
 
-const HeaderContainer = styled.div`
-  max-width: 48rem;
-  margin: 0 auto 10px auto;
+const HeaderBox = styled.header`
+  max-width: 600px;
+  margin: 0 auto 28px auto;
   text-align: center;
-  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation: ${slideUp} 0.6s ease-out forwards;
 `;
 
-const Badge = styled.div`
+const NeonBadge = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(217, 119, 6, 0.1));
-  border: 1px solid rgba(217, 119, 6, 0.3);
-  color: #1e40af;
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-bottom: 8px;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #6366f1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.08);
 `;
 
-const MainTitle = styled.h1`
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+const TitleHeading = styled.h1`
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: #0f172a;
-  line-height: 1.2;
-  margin-bottom: 8px;
+  line-height: 1.15;
+  margin-bottom: 12px;
 
-  @media (min-width: 640px) {
-    font-size: 2.75rem;
+  span {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 `;
 
-const HighlightSpan = styled.span`
-  background: linear-gradient(135deg, #2563eb, #1d4ed8, #d97706, #f59e0b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-`;
-
-const Subtitle = styled.p`
-  font-size: 0.95rem;
-  color: #475569;
-  line-height: 1.5;
+const DescText = styled.p`
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.6;
   margin: 0;
 `;
 
-const ContentGrid = styled.div`
-  max-width: 80rem;
+const FormContainerWrapper = styled.div`
+  width: 100%;
+  max-width: 680px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1.25fr;
-    gap: 10px;
-  }
 `;
 
-const InfoColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const InfoCard = styled.div`
+const FormBox = styled.div`
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, border-color 0.3s ease;
-
-  &:hover {
-    border-color: rgba(37, 99, 235, 0.4);
-    transform: translateY(-2px);
-  }
-`;
-
-const InfoCardTitle = styled.h3`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color:#1e40af;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  svg {
-    color: #2563eb;
-    width: 1.1rem;
-    height: 1.1rem;
-  }
-`;
-
-const ContactDetailItem = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 8px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const IconWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(217, 119, 6, 0.1));
-  color: #2563eb;
-  flex-shrink: 0;
-
-  svg {
-    width: 1rem;
-    height: 1rem;
-  }
-`;
-
-const DetailContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  span:first-child {
-    font-size: 0.75rem;
-    color: #64748b;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  span:last-child {
-    font-size: 0.9rem;
-    color: #334155;
-    font-weight: 500;
-  }
-`;
-
-const FormColumn = styled.div`
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 
   @media (min-width: 640px) {
-    padding: 10px;
+    padding: 36px;
   }
 `;
 
-const FormTitle = styled.h3`
-  font-size: 1.25rem;
+const FormHeaderTitle = styled.h3`
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+`;
+
+const FormHeaderDesc = styled.p`
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 24px;
+`;
+
+const FormFieldsWrapper = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+`;
+
+const FieldBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const StyledLabel = styled.label`
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #1e40af;
-  margin-bottom: 4px;
-`;
-
-const FormSubtitle = styled.p`
-  font-size: 0.9rem;
-  color: #475569;
-  margin-bottom: 10px;
-`;
-
-const FormGrid = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const Label = styled.label`
-  font-size: 0.8rem;
-  font-weight: 500;
   color: #334155;
+  letter-spacing: 0.02em;
 `;
 
-const Input = styled.input`
+const StyledInput = styled.input`
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
   background-color: #f8fafc !important;
   color: #0f172a !important;
   border: 1px solid #cbd5e1;
   font-size: 0.95rem;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
 
   &:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    background-color: #ffffff !important;
   }
 `;
 
-const TextArea = styled.textarea`
+const StyledTextArea = styled.textarea`
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
   background-color: #f8fafc !important;
   color: #0f172a !important;
   border: 1px solid #cbd5e1;
   font-size: 0.95rem;
   outline: none;
-  min-height: 100px;
+  min-height: 130px;
   resize: vertical;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
 
   &:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    background-color: #ffffff !important;
   }
 `;
 
-const SubmitButton = styled.button`
+const ActionButton = styled.button`
   width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #2563eb, #d97706);
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   color: #ffffff;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 1rem;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
   transition: all 0.3s ease;
-  margin-top: 4px;
+  margin-top: 6px;
 
   &:hover {
-    background: linear-gradient(135deg, #1d4ed8, #b45309);
+    opacity: 0.95;
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
   }
 
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.65;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -305,154 +223,84 @@ export default function ContactUsPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-  try {
-    const response = await fetch('/api/send-contact-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const response = await fetch('/api/send-contact-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.success) {
+      if (data.success) {
+        Swal.fire({
+          title: "Message Sent Successfully!",
+          text: "Thank you for reaching out to EchoByte Concept. One of our digital specialists will get back to you shortly.",
+          icon: "success",
+          confirmButtonText: "Done",
+          confirmButtonColor: "#6366f1",
+          background: "#ffffff",
+          color: "#0f172a"
+        });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          message: ""
+        });
+      } else {
+        throw new Error(data.error || 'Failed to send message.');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
       Swal.fire({
-        title: "Message Sent Successfully!",
-        text: "Thank you for reaching out to Bees Interior. One of our design consultants will get back to you shortly.",
-        icon: "success",
-        confirmButtonText: "Done",
-        confirmButtonColor: "#2563eb",
+        title: "Error!",
+        text: "Something went wrong while sending your message. Please try again later.",
+        icon: "error",
+        confirmButtonText: "Okay",
+        confirmButtonColor: "#6366f1",
         background: "#ffffff",
         color: "#0f172a"
       });
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        message: ""
-      });
-    } else {
-      throw new Error(data.error || 'Failed to send message.');
+    } finally {
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    console.error('Submission error:', error);
-    Swal.fire({
-      title: "Error!",
-      text: "Something went wrong while sending your message. Please try again later.",
-      icon: "error",
-      confirmButtonText: "Okay",
-      confirmButtonColor: "#2563eb",
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-
+  };
 
   return (
-    <ContactPageWrapper>
-      {/* Page Header */}
-      <HeaderContainer>
-        <Badge>
-          <Sparkles className="w-4 h-4 text-blue-600" />
+    <PageContainer>
+      {/* Header */}
+      <HeaderBox>
+        <NeonBadge>
+          <Sparkles className="w-4 h-4 text-indigo-600" />
           <span>Get In Touch With Us</span>
-        </Badge>
-        <MainTitle>
-          Let’s Create Your <HighlightSpan>Dream Space</HighlightSpan> Together
-        </MainTitle>
-        <Subtitle>
-          Whether you are looking to revamp a single room or commission a full-scale luxury architectural transformation, our expert team is ready to bring your vision to life.
-        </Subtitle>
-      </HeaderContainer>
+        </NeonBadge>
+        <TitleHeading>
+          Let’s Build Your <span>Digital Future</span> Together
+        </TitleHeading>
+        <DescText>
+          Whether you are launching a new e-commerce store, need custom web development, or require top-tier digital assets, our expert team is ready to scale your brand.
+        </DescText>
+      </HeaderBox>
 
-      {/* Grid Content */}
-      <ContentGrid>
-        {/* Left Column: Contact Details & Office Info */}
-        <InfoColumn>
-          {/* Direct Contacts Card */}
-          <InfoCard>
-            <InfoCardTitle>
-              <Building2 />
-              Headquarters & Showroom
-            </InfoCardTitle>
+      {/* Main Centered Form Container */}
+      <FormContainerWrapper>
+        <FormBox>
+          <FormHeaderTitle>Send Us a Message</FormHeaderTitle>
+          <FormHeaderDesc>
+            Fill out the form below and our technical support team will respond within 24 hours.
+          </FormHeaderDesc>
 
-            <ContactDetailItem>
-              <IconWrapper>
-                <MapPin />
-              </IconWrapper>
-              <DetailContent>
-                <span>Location</span>
-                <span>24 Oseni street, Anthony Village Lagos state Nigeria</span>
-              </DetailContent>
-            </ContactDetailItem>
-
-            <ContactDetailItem>
-              <IconWrapper>
-                <Phone />
-              </IconWrapper>
-              <DetailContent>
-                <span>Direct Line</span>
-                <span>+234 812 549 4597</span>
-              </DetailContent>
-            </ContactDetailItem>
-
-            <ContactDetailItem>
-              <IconWrapper>
-                <Mail />
-              </IconWrapper>
-              <DetailContent>
-                <span>Email Support</span>
-                <span>beesinterior@gmail.com</span>
-              </DetailContent>
-            </ContactDetailItem>
-          </InfoCard>
-
-          {/* Operating Hours Card */}
-          <InfoCard>
-            <InfoCardTitle>
-              <Clock />
-              Working Hours
-            </InfoCardTitle>
-
-            <ContactDetailItem>
-              <IconWrapper>
-                <Clock />
-              </IconWrapper>
-              <DetailContent>
-                <span>Monday — Friday</span>
-                <span>9:00 AM – 6:00 PM (WAT)</span>
-              </DetailContent>
-            </ContactDetailItem>
-
-            <ContactDetailItem>
-              <IconWrapper>
-                <CheckCircle />
-              </IconWrapper>
-              <DetailContent>
-                <span>Saturday Consultations</span>
-                <span>10:00 AM – 4:00 PM (By Appointment)</span>
-              </DetailContent>
-            </ContactDetailItem>
-          </InfoCard>
-        </InfoColumn>
-
-        {/* Right Column: Interactive Consultation & Message Form */}
-        <FormColumn>
-          <FormTitle>Send Us a Message</FormTitle>
-          <FormSubtitle>
-            Fill out the form below and our client relations team will respond within 24 hours.
-          </FormSubtitle>
-
-          <FormGrid onSubmit={handleSubmit}>
-            <InputGroup>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
+          <FormFieldsWrapper onSubmit={handleSubmit}>
+            <FieldBlock>
+              <StyledLabel htmlFor="name">Full Name</StyledLabel>
+              <StyledInput
                 type="text"
                 id="name"
                 name="name"
@@ -461,12 +309,12 @@ const handleSubmit = async (e) => {
                 onChange={handleChange}
                 placeholder="Enter your full name"
               />
-            </InputGroup>
+            </FieldBlock>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <InputGroup>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+              <FieldBlock>
+                <StyledLabel htmlFor="email">Email Address</StyledLabel>
+                <StyledInput
                   type="email"
                   id="email"
                   name="email"
@@ -475,11 +323,11 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   placeholder="name@example.com"
                 />
-              </InputGroup>
+              </FieldBlock>
 
-              <InputGroup>
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
+              <FieldBlock>
+                <StyledLabel htmlFor="phone">Phone Number</StyledLabel>
+                <StyledInput
                   type="tel"
                   id="phone"
                   name="phone"
@@ -488,22 +336,22 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   placeholder="+234..."
                 />
-              </InputGroup>
+              </FieldBlock>
             </div>
 
-            <InputGroup>
-              <Label htmlFor="message">Your Message</Label>
-              <TextArea
+            <FieldBlock>
+              <StyledLabel htmlFor="message">Your Message</StyledLabel>
+              <StyledTextArea
                 id="message"
                 name="message"
                 required
                 value={formData.message}
                 onChange={handleChange}
-                placeholder="Describe your space, style preference, or project goals..."
+                placeholder="Describe your project, store requirements, or technical goals..."
               />
-            </InputGroup>
+            </FieldBlock>
 
-            <SubmitButton type="submit" disabled={isSubmitting}>
+            <ActionButton type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 "Sending Message..."
               ) : (
@@ -512,10 +360,10 @@ const handleSubmit = async (e) => {
                   Send Message
                 </>
               )}
-            </SubmitButton>
-          </FormGrid>
-        </FormColumn>
-      </ContentGrid>
-    </ContactPageWrapper>
+            </ActionButton>
+          </FormFieldsWrapper>
+        </FormBox>
+      </FormContainerWrapper>
+    </PageContainer>
   );
 }

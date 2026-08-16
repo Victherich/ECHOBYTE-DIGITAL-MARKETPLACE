@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Zoom } from 'react-awesome-reveal';
 import { useRouter } from 'next/navigation'; // Use 'next/navigation' if you are on Next.js App Router
-// import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import {auth, db } from "@/firebaseConfig"; // Update this import to match your project's Firebase config path
 import { collection, getDocs, doc, setDoc, deleteDoc, query, where, orderBy, limit } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -12,30 +11,286 @@ import Swal from "sweetalert2";
 
 
 
-// --- THEME & STYLES ---
-const primaryGold = '#D4AF37';
-const primaryBlue = '#1E3A8A';
-const goldGradient = 'linear-gradient(135deg, #FFDF73 0%, #D4AF37 50%, #AA7C11 100%)';
-const blueGradient = 'linear-gradient(135deg, #3B82F6 0%, #1E3A8A 50%, #0F172A 100%)';
+// // --- THEME & STYLES ---
+// const primaryGold = '#D4AF37';
+// const primaryBlue = '#1E3A8A';
+// const goldGradient = 'linear-gradient(135deg, #FFDF73 0%, #D4AF37 50%, #AA7C11 100%)';
+// const blueGradient = 'linear-gradient(135deg, #3B82F6 0%, #1E3A8A 50%, #0F172A 100%)';
 
-// 🎨 BEES INTERIOR THEME COLORS
-const Blue = "#2563eb";
+// // 🎨 BEES INTERIOR THEME COLORS
+// const Blue = "#2563eb";
+// const Dark = "#0f172a";
+// const Border = "#e5eaf2";
+// const White = "#ffffff";
+// const Gold = "#D4AF37";
+// const TextMuted = "#475569";
+// const Danger = "#ef4444";
+
+// const ProductsSection = styled.section`
+//   background: #FFFFFF;
+//   padding: 15px 10px;
+//   border-radius: 6px;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 15px;
+//   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+//   border: 1px solid rgba(226, 232, 240, 0.8);
+// `;
+
+// const SectionHeader = styled.div`
+//   text-align: center;
+//   margin-bottom: 10px;
+//   padding: 0 10px;
+// `;
+
+// const SectionTitle = styled.h2`
+//   font-size: 24px;
+//   font-weight: 800;
+//   background: ${blueGradient};
+//   -webkit-background-clip: text;
+//   -webkit-text-fill-color: transparent;
+//   margin: 0;
+// `;
+
+// const SectionSubtitle = styled.p`
+//   font-size: 13px;
+//   color: #64748B;
+//   margin: 4px 0 0 0;
+// `;
+
+// // const ProductsGrid = styled.div`
+// //   display: grid;
+// //   grid-template-columns: repeat(4, 1fr);
+// //   gap: 15px;
+ 
+// //   max-width: 1200px;
+// //   margin: 0 auto;
+// //   width: 100%;
+// //   box-sizing: border-box;
+
+// //   /* Maintain a max width of 250px and center when there is exactly 1 product */
+// //   & > * {
+// //     ${({ $itemCount }) => $itemCount === 1 && `
+// //       grid-column: 1 / -1;
+// //       max-width: 250px;
+// //       margin: 0 auto;
+// //       width: 100%;
+// //     `}
+// //   }
+
+// //   @media(max-width: 768px) {
+// //     grid-template-columns: repeat(2, 1fr);
+// //   }
+// // `;
+
+// // const ProductCard = styled.div`
+// //   background: #F8FAFC;
+// //   border-radius: 6px;
+// //   border: 1px solid rgba(212, 175, 55, 0.2);
+// //   padding: 10px;
+// //   display: flex;
+// //   flex-direction: column;
+// //   gap: 10px;
+// //   box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+// //   height: 100%;
+// //   box-sizing: border-box;
+// //   transition: background 0.2s ease;
+
+// //   &:hover {
+// //     background: #FFFFFF;
+// //   }
+// // `;
+
+
+// const ProductsGrid = styled.div`
+//   display: flex;
+//   flex-wrap: wrap;
+//   gap: 10px;
+//   justify-content: center; /* Centers cards if there's an odd number, use flex-start if you want them left-aligned */
+//   width: 100%;
+//   box-sizing: border-box;
+
+//   @media (max-width: 768px) {
+//     gap: 4px; /* Adjust or set to 0px for zero space between cards */
+//   }
+// `;
+
+// const ProductCard = styled.div`
+
+//   border-radius: 10px;
+//   padding: 10px;
+//   border: 1px solid ${Border};
+//   border-left: 4px solid ${Gold};
+//   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+//   display: flex;
+//   flex-direction: column;
+//   gap: 10px;
+//   cursor: pointer;
+//   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+//   /* 📏 Enforce strict sizing and max-width */
+//   width: 100%;
+//   max-width: 250px;
+//   box-sizing: border-box;
+
+//   &:hover {
+//     transform: translateY(-2px);
+//     box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+//   }
+
+//   @media (max-width: 768px) {
+//     padding: 8px;
+//     gap: 6px;
+//     /* Calculates exact 50% width minus half of your mobile gap so exactly 2 fit per row */
+//     max-width: calc(50% - 2px); 
+//   }
+// `;
+
+
+// const CardImageWrapper = styled.div`
+//   position: relative;
+//   width: 100%;
+//   height: 140px;
+
+//   @media (max-width: 768px) {
+//     height: 120px;
+//   }
+// `;
+
+// const CardLoveIcon = styled.button`
+//   position: absolute;
+//   top: 8px;
+//   right: 8px;
+//   background: rgba(255, 255, 255, 0.85);
+//   border: 1px solid ${Border};
+//   border-radius: 50%;
+//   width: 32px;
+//   height: 32px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   cursor: pointer;
+//   z-index: 5;
+//   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+//   transition: transform 0.2s ease;
+
+//   &:hover {
+//     transform: scale(1.1);
+//     background: ${White};
+//   }
+// `;
+
+// const CardImage = styled.img`
+//   width: 100%;
+//   height: 140px;
+//   object-fit: cover;
+//   border-radius: 4px;
+
+//   @media (max-width: 768px) {
+//   height: 120px; /* Slightly smaller height for mobile */
+//   }
+// `;
+
+// const ProductTag = styled.span`
+//   font-size: 10px;
+//   color: ${primaryGold};
+//   font-weight: 700;
+//   text-transform: uppercase;
+// `;
+
+// const ProductTitle = styled.h4`
+//   font-size: 13px;
+//   font-weight: 700;
+//   color: ${primaryBlue};
+//   margin: 0;
+// `;
+
+// const ProductPriceRow = styled.div`
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+//   margin-top: auto;
+
+//   @media(max-width: 768px) {
+//   flex-direction: column;
+//   gap:5px;
+//   }
+// `;
+
+// const PriceText = styled.span`
+//   font-size: 14px;
+//   font-weight: 800;
+//   color: #0F172A;
+// `;
+
+// const AddButton = styled.button`
+//   background: ${blueGradient};
+//   color: #FFFFFF;
+//   border: none;
+//   padding: 4px 10px;
+//   border-radius: 4px;
+//   font-size: 11px;
+//   font-weight: 600;
+//   cursor: pointer;
+//   box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
+
+//   &:hover {
+//     opacity: 0.9;
+//   }
+// `;
+
+// const ViewMoreContainer = styled.div`
+//   display: flex;
+//   justify-content: center;
+//   margin-top: 10px;
+// `;
+
+// const ViewMoreButton = styled.button`
+//   background: ${goldGradient};
+//   color: #0F172A;
+//   border: none;
+//   padding: 10px 24px;
+//   border-radius: 6px;
+//   font-weight: 800;
+//   font-size: 13px;
+//   cursor: pointer;
+//   box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+//   transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+//   &:hover {
+//     transform: translateY(-2px);
+//     box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+//   }
+// `;
+
+// const LoadingText = styled.div`
+//   text-align: center;
+//   font-size: 13px;
+//   color: #64748B;
+//   padding: 20px;
+// `;
+
+
+
+// --- THEME & STYLES ---
+const Blue = "#6366f1";
+const Purple = "#a855f7";
+const bluePurpleGradient = "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)";
 const Dark = "#0f172a";
-const Border = "#e5eaf2";
+const Border = "#e2e8f0";
 const White = "#ffffff";
-const Gold = "#D4AF37";
-const TextMuted = "#475569";
-const Danger = "#ef4444";
+const TextMuted = "#64748b";
+const LightBg = "#f8fafc";
 
 const ProductsSection = styled.section`
-  background: #FFFFFF;
-  padding: 15px 10px;
-  border-radius: 6px;
+  background: ${LightBg};
+  padding: 20px 16px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  gap: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid ${Border};
 `;
 
 const SectionHeader = styled.div`
@@ -47,7 +302,7 @@ const SectionHeader = styled.div`
 const SectionTitle = styled.h2`
   font-size: 24px;
   font-weight: 800;
-  background: ${blueGradient};
+  background: ${bluePurpleGradient};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;
@@ -55,125 +310,82 @@ const SectionTitle = styled.h2`
 
 const SectionSubtitle = styled.p`
   font-size: 13px;
-  color: #64748B;
-  margin: 4px 0 0 0;
+  color: ${TextMuted};
+  margin: 6px 0 0 0;
 `;
-
-// const ProductsGrid = styled.div`
-//   display: grid;
-//   grid-template-columns: repeat(4, 1fr);
-//   gap: 15px;
- 
-//   max-width: 1200px;
-//   margin: 0 auto;
-//   width: 100%;
-//   box-sizing: border-box;
-
-//   /* Maintain a max width of 250px and center when there is exactly 1 product */
-//   & > * {
-//     ${({ $itemCount }) => $itemCount === 1 && `
-//       grid-column: 1 / -1;
-//       max-width: 250px;
-//       margin: 0 auto;
-//       width: 100%;
-//     `}
-//   }
-
-//   @media(max-width: 768px) {
-//     grid-template-columns: repeat(2, 1fr);
-//   }
-// `;
-
-// const ProductCard = styled.div`
-//   background: #F8FAFC;
-//   border-radius: 6px;
-//   border: 1px solid rgba(212, 175, 55, 0.2);
-//   padding: 10px;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 10px;
-//   box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-//   height: 100%;
-//   box-sizing: border-box;
-//   transition: background 0.2s ease;
-
-//   &:hover {
-//     background: #FFFFFF;
-//   }
-// `;
-
 
 const ProductsGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center; /* Centers cards if there's an odd number, use flex-start if you want them left-aligned */
+  gap: 16px;
+  justify-content: center;
   width: 100%;
   box-sizing: border-box;
 
   @media (max-width: 768px) {
-    gap: 4px; /* Adjust or set to 0px for zero space between cards */
+    gap: 10px;
   }
 `;
 
 const ProductCard = styled.div`
-
-  border-radius: 10px;
-  padding: 10px;
+  background: ${White};
+  border-radius: 12px;
+  padding: 12px;
   border: 1px solid ${Border};
-  border-left: 4px solid ${Gold};
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  border-left: none;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   
-  /* 📏 Enforce strict sizing and max-width */
   width: 100%;
-  max-width: 250px;
+  max-width: 260px;
   box-sizing: border-box;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+    border-color: ${Blue};
   }
 
   @media (max-width: 768px) {
-    padding: 8px;
-    gap: 6px;
-    /* Calculates exact 50% width minus half of your mobile gap so exactly 2 fit per row */
-    max-width: calc(50% - 2px); 
+    padding: 10px;
+    gap: 10px;
+    max-width: calc(50% - 5px); 
   }
 `;
-
 
 const CardImageWrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 140px;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f1f5f9;
 
   @media (max-width: 768px) {
-    height: 120px;
+    height: 130px;
   }
 `;
 
 const CardLoveIcon = styled.button`
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.85);
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid ${Border};
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 5;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, background 0.2s ease;
 
   &:hover {
     transform: scale(1.1);
@@ -183,27 +395,26 @@ const CardLoveIcon = styled.button`
 
 const CardImage = styled.img`
   width: 100%;
-  height: 140px;
+  height: 100%;
   object-fit: cover;
-  border-radius: 4px;
+  transition: transform 0.3s ease;
 
-  @media (max-width: 768px) {
-  height: 120px; /* Slightly smaller height for mobile */
+  ${ProductCard}:hover & {
+    transform: scale(1.03);
   }
 `;
 
-const ProductTag = styled.span`
-  font-size: 10px;
-  color: ${primaryGold};
-  font-weight: 700;
-  text-transform: uppercase;
-`;
-
 const ProductTitle = styled.h4`
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  color: ${primaryBlue};
+  color: ${Dark};
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 38px;
 `;
 
 const ProductPriceRow = styled.div`
@@ -211,64 +422,69 @@ const ProductPriceRow = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
+  padding-top: 4px;
+  border-top: 1px dashed ${Border};
 
   @media(max-width: 768px) {
-  flex-direction: column;
-  gap:5px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 `;
 
 const PriceText = styled.span`
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
-  color: #0F172A;
+  color: ${Dark};
 `;
 
 const AddButton = styled.button`
-  background: ${blueGradient};
-  color: #FFFFFF;
+  background: ${bluePurpleGradient};
+  color: ${White};
   border: none;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 11px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    opacity: 0.9;
+    opacity: 0.95;
+    transform: translateY(-1px);
   }
 `;
 
 const ViewMoreContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  margin-top: 15px;
 `;
 
 const ViewMoreButton = styled.button`
-  background: ${goldGradient};
-  color: #0F172A;
+  background: ${bluePurpleGradient};
+  color: ${White};
   border: none;
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-weight: 800;
-  font-size: 13px;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+    box-shadow: 0 6px 22px rgba(99, 102, 241, 0.5);
   }
 `;
 
 const LoadingText = styled.div`
   text-align: center;
-  font-size: 13px;
-  color: #64748B;
-  padding: 20px;
+  font-size: 14px;
+  color: ${TextMuted};
+  padding: 30px;
 `;
 
 // --- COMPONENT EXPORT ---
@@ -399,8 +615,8 @@ useEffect(() => {
     return (
       <ProductsSection>
         <SectionHeader>
-          <SectionTitle>Shop Our Curated Luxury Accessories</SectionTitle>
-          <SectionSubtitle>Shop premium home decor, furniture, and accent pieces.</SectionSubtitle>
+          {/* <SectionTitle>Shop Our Curated Luxury Accessories</SectionTitle> */}
+          {/* <SectionSubtitle>Shop premium home decor, furniture, and accent pieces.</SectionSubtitle> */}
         </SectionHeader>
         <LoadingText>Loading products...</LoadingText>
       </ProductsSection>
@@ -412,8 +628,8 @@ useEffect(() => {
     return (
       <ProductsSection>
         <SectionHeader>
-          <SectionTitle>Shop Our Curated Luxury Accessories</SectionTitle>
-          <SectionSubtitle>Shop premium home decor, furniture, and accent pieces.</SectionSubtitle>
+          {/* <SectionTitle>Shop Our Curated Luxury Accessories</SectionTitle> */}
+          {/* <SectionSubtitle>Shop premium home decor, furniture, and accent pieces.</SectionSubtitle> */}
         </SectionHeader>
         <LoadingText>No products available yet.</LoadingText>
       </ProductsSection>
@@ -423,9 +639,9 @@ useEffect(() => {
   return (
     <ProductsSection>
       <SectionHeader>
-          <SectionTitle style={{ textDecoration: 'underline' }}>WELCOME TO OUR STORE</SectionTitle>
-        <SectionTitle style={{ fontSize: '1rem', marginTop:'20px' }}>Shop Our Curated Luxury Accessories</SectionTitle>
-        <SectionSubtitle>Shop premium home decor, furniture, and accent pieces.</SectionSubtitle>
+          {/* <SectionTitle style={{ textDecoration: 'underline' }}>WELCOME TO OUR STORE</SectionTitle> */}
+        {/* <SectionTitle style={{ fontSize: '1rem', marginTop:'20px' }}>Shop Our Curated Luxury Accessories</SectionTitle> */}
+        {/* <SectionSubtitle>Shop premium home decor, furniture, and accent pieces.</SectionSubtitle> */}
       </SectionHeader>
 
 <ProductsGrid $itemCount={products.length}>
@@ -459,10 +675,10 @@ useEffect(() => {
                   <PriceText>
                     ₦{productPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </PriceText>
-                  <AddButton onClick={(e) => {
+                  {/* <AddButton onClick={(e) => {
                     e.stopPropagation();
                     router.push(`/productdetail/${product.id}`);
-                  }}>View</AddButton>
+                  }}>View</AddButton> */}
                 </ProductPriceRow>
               </ProductCard>
             </Zoom>
