@@ -83,7 +83,7 @@ const BrandLogo = styled.h3`
 `;
 
 const Headline = styled.h1`
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-size: 2rem;
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.5px;
@@ -368,12 +368,12 @@ const handleSubmit = async (e) => {
         {/* Left Visual Branding Panel */}
       <BrandingSide>
   <BrandLogo>
-    ECHOBYTE <span>DIGITAL STORE</span>
+    ECHOBYTE DIGI-MART
   </BrandLogo>
   <BrandingContent>
-    <Headline>Power Your Digital Future</Headline>
+    <Headline>Register and start selling and buying Digital Products and Services</Headline>
     <Subtext>
-      Join our exclusive tech ecosystem to manage software services, track digital orders, and experience seamless solutions.
+      You can buy and sell from the same account
     </Subtext>
   </BrandingContent>
   <div /> {/* Spacer */}

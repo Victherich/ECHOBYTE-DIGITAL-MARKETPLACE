@@ -266,7 +266,7 @@ export default function Header() {
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <img src="/logo.jpeg" alt="Bees Interior Logo" style={{ height: "50px", borderRadius:"50%" }} />    
               <Logo>
-                Echobyte<span> Digital Marketplace</span>
+                Echobyte<span> Digi-Mart</span>
               </Logo>
             </div>
           </Link>
@@ -275,7 +275,7 @@ export default function Header() {
             <Nav $open={open}>
               <NavLink href="/" $active={pathname === "/"} onClick={() => setOpen(false)}>Home</NavLink>
               <NavLink href="/about" $active={pathname === "/about"} onClick={() => setOpen(false)}>About</NavLink>
-              <NavLink href="/store" $active={pathname === "/store"} onClick={() => setOpen(false)}>Digital Stores</NavLink>
+              <NavLink href="/stores" $active={pathname === "/stores"} onClick={() => setOpen(false)}>Digital Stores</NavLink>
               
               <NavLink href="/contact" $active={pathname === "/contact"} onClick={() => setOpen(false)}>Contact</NavLink>
          

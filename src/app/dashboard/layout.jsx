@@ -635,7 +635,7 @@ export default function DashboardLayout({ children }) {
       <Sidebar $open={sidebarOpen}>
         <SidebarTop>
           <BrandLogo>
-            ECHOBYTE <span>DIGITAL STORE</span>
+            ECHOBYTE <span>DIGI-MART</span>
           </BrandLogo>
 
           <NavLinks>

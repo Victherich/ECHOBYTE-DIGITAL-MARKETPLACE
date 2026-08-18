@@ -83,7 +83,7 @@ const BrandLogo = styled.h3`
 `;
 
 const Headline = styled.h1`
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-size: 2rem;
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.5px;
@@ -294,12 +294,13 @@ export default function UserLogin() {
         {/* Left Visual Branding Panel */}
 <BrandingSide>
   <BrandLogo>
-    ECHOBYTE <span>DIGITAL STORE</span>
+    ECHOBYTE DIGI-MART
   </BrandLogo>
   <BrandingContent>
     <Headline>Welcome Back to Your Workspace</Headline>
     <Subtext>
-      Log in to access your digital solutions, track your active orders, and manage your tech ecosystem effortlessly.
+      Log in and start Selling and buying your Digital products and 
+      services.
     </Subtext>
   </BrandingContent>
   <div />
@@ -345,6 +346,9 @@ export default function UserLogin() {
 
               <LinkText onClick={() => router.push("/signup")}>
                 Don't have an account? <span>Sign Up</span>
+              </LinkText>
+              <LinkText onClick={() => router.push("/forgot-password")}>
+                <span>Forgot Password</span>
               </LinkText>
             </FormGrid>
           </form>

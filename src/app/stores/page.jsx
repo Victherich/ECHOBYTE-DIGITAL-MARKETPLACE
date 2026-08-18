@@ -347,6 +347,7 @@ import { db } from "@/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import styled from "styled-components";
 import Link from "next/link";
+import StoreFooter from "@/components/StoreFooter";
 
 // 🎨 Theme Colors
 const Primary = "#6366f1";
@@ -453,7 +454,7 @@ const StoreCard = styled(Link)`
   background: ${White};
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid ${Border};
+  border: 1px solid ${Primary};
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.03);
   display: flex;
   flex-direction: column;
@@ -681,7 +682,7 @@ export default function DigitalStoresPage() {
                     </StoreInfo>
                   </StoreHeader>
                   <StoreMeta>
-                    <span>Digital Marketplace</span>
+                    <span>Click to explore</span>
                     <ProductBadge>{store.productCount} {store.productCount === 1 ? "Product" : "Products"}</ProductBadge>
                   </StoreMeta>
                 </StoreCard>
@@ -690,6 +691,7 @@ export default function DigitalStoresPage() {
           </StoresGrid>
         )}
       </ContentWrapper>
+     
     </Container>
   );
 }

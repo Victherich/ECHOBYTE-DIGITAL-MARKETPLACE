@@ -3,6 +3,7 @@
 import styled from "styled-components";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 /* ================= COLORS (Light Theme) ================= */
 
@@ -22,6 +23,7 @@ const FooterContainer = styled.footer`
   border-top: 1px solid ${Border};
   font-family: inherit;
   position: relative;
+  padding:1rem;
 `;
 
 const FooterInner = styled.div`
@@ -204,6 +206,25 @@ const WhatsAppFloat = styled.a`
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
+  const pathname = usePathname();
+
+  // Define allowed routes / route prefixes
+  const isDashboard = pathname.startsWith("/dashboard");
+  const isAllowedRoute = 
+    pathname === "/privacy-policy" || 
+    pathname === "/terms-conditions" || 
+    pathname ==='/'||
+    pathname === '/about'||
+    pathname ==='/'||
+    pathname==='/stores'||
+    pathname==='/contact'||
+    isDashboard;
+
+  // If we are not on an allowed route, don't render the footer or WhatsApp float
+  if (!isAllowedRoute) {
+    return null;
+  }
+
   return (
     <>
       <FooterContainer>
@@ -213,7 +234,7 @@ export default function Footer() {
             <Link href="/" style={{ textDecoration: 'none' }}>
               <img src="/logo.jpeg" alt="EchoByte Logo" style={{ height: "50px", marginBottom: "10px", borderRadius: "10px" }} />  
               <Logo>
-                Echobyte <span>Digital Store</span>
+                Echobyte <span>Digi-Mart</span>
               </Logo>
             </Link>
             <FooterText>
@@ -226,7 +247,7 @@ export default function Footer() {
             <ColTitle>Quick Links</ColTitle>
             <FooterLink href="/">Home</FooterLink>
             <FooterLink href="/about">About Us</FooterLink>
-            <FooterLink href="/store">Digital Stores</FooterLink>
+            <FooterLink href="/stores">Digital Stores</FooterLink>
   
             <FooterLink href="/contact">Contact</FooterLink>
           </FooterCol>

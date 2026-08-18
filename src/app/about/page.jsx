@@ -407,8 +407,8 @@ export default function AboutPage() {
       <CtaSection>
         <CtaContainer>
           <h2>Ready to Transform Your Digital Presence?</h2>
-          <p>Explore our digital store or get in touch with us today to start building your next high-performance project.</p>
-          <CtaButton href="/store">Explore Our Store</CtaButton>
+          {/* <p>Explore our digital store or get in touch with us today to start building your next high-performance project.</p> */}
+          <CtaButton href="/login">Start Selling</CtaButton>
         </CtaContainer>
       </CtaSection>
     </AboutPageWrapper>

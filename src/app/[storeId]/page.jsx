@@ -7,6 +7,7 @@ import { db, auth } from "@/firebaseConfig";
 import { collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, where } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import Swal from "sweetalert2";
+import StoreFooter from "@/components/StoreFooter";
 
 /* ================= ECHOBYTE THEME COLORS ================= */
 const PrimaryColor = "#6366f1";
@@ -365,45 +366,182 @@ export default function StorePage() {
 
   // 1. Fetch Store Owner and their specific products
 // 1. Fetch Store Owner and their specific products
+  // useEffect(() => {
+  //   async function fetchStoreAndProducts() {
+  //     try {
+  //       setLoading(true);
+  //       let targetUserId = "";
+  //       let targetUserEmail = "";
+  //       let ownerName = "";
+
+  //       // If a store identifier is present in the URL (e.g. /victherich)
+  //       if (storeIdentifier) {
+  //         const usersSnapshot = await getDocs(collection(db, "users"));
+  //         const matchedUserDoc = usersSnapshot.docs.find(docSnap => {
+  //           const data = docSnap.data();
+  //           const emailPrefix = data.email ? data.email.split("@")[0].toLowerCase() : "";
+  //           const nameSlug = data.name ? data.name.replace(/\s+/g, "").toLowerCase() : "";
+  //           const docId = docSnap.id.toLowerCase();
+  //           const userUid = data.uid ? data.uid.toLowerCase() : "";
+
+  //           return (
+  //             emailPrefix === storeIdentifier.toLowerCase() || 
+  //             nameSlug.includes(storeIdentifier.toLowerCase()) || 
+  //             docId === storeIdentifier.toLowerCase() ||
+  //             userUid === storeIdentifier.toLowerCase()
+  //           );
+  //         });
+
+  //         if (matchedUserDoc) {
+  //           targetUserId = matchedUserDoc.id;
+  //           const userData = matchedUserDoc.data();
+  //           targetUserEmail = userData.email || "";
+  //           ownerName = userData.name || userData.email.split("@")[0];
+  //           setStoreOwner({ id: targetUserId, ...userData, displayName: ownerName });
+  //         } else {
+  //           ownerName = storeIdentifier.charAt(0).toUpperCase() + storeIdentifier.slice(1);
+  //           setStoreOwner({ displayName: ownerName });
+  //         }
+  //       }
+
+  //       // Fetch all products or query by userId / email if your product creation includes them
+  //       const productsSnapshot = await getDocs(collection(db, "products"));
+        
+  //       const fetchedProducts = productsSnapshot.docs
+  //         .map((docSnap) => {
+  //           const data = docSnap.data();
+  //           return {
+  //             id: docSnap.id,
+  //             userId: data.userId || "",
+  //             email: data.email || "",
+  //             name: data.name || "Untitled Product",
+  //             amount: Number(data.amount) || 0,
+  //             images: data.images || [],
+  //             image: data.image || "",
+  //             createdAt: data.createdAt,
+  //           };
+  //         })
+  //         .filter((product) => {
+  //           // If no store identifier, show all products
+  //           if (!storeIdentifier) return true;
+
+  //           // Match if product has userId matching the user's doc ID or uid, 
+  //           // OR if you want to display all products created while logged in (or filter by email if stored)
+  //           const matchesUserId = targetUserId && (product.userId === targetUserId || product.userId === storeOwner?.uid);
+            
+  //           // Temporary fallback: If products in your DB don't have userId yet, 
+  //           // you can display products or attach them. For now, let's match userId or fallback to showing products if none have userId yet.
+  //           if (!product.userId) {
+  //             // If your product creation script didn't save userId, you can link it here or update your product creation form.
+  //             return true; // Displays the product until you update product creation to include userId
+  //           }
+
+  //           return matchesUserId;
+  //         });
+
+  //       setProducts(fetchedProducts);
+  //     } catch (error) {
+  //       console.error("Error fetching store products:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+
+  //   fetchStoreAndProducts();
+  // }, [storeIdentifier]);
+
+
+
+// 1. Fetch Store Owner, Subaccount Business Name, and Products
   useEffect(() => {
     async function fetchStoreAndProducts() {
       try {
         setLoading(true);
-        let targetUserId = "";
-        let targetUserEmail = "";
-        let ownerName = "";
 
-        // If a store identifier is present in the URL (e.g. /victherich)
-        if (storeIdentifier) {
-          const usersSnapshot = await getDocs(collection(db, "users"));
-          const matchedUserDoc = usersSnapshot.docs.find(docSnap => {
-            const data = docSnap.data();
-            const emailPrefix = data.email ? data.email.split("@")[0].toLowerCase() : "";
-            const nameSlug = data.name ? data.name.replace(/\s+/g, "").toLowerCase() : "";
-            const docId = docSnap.id.toLowerCase();
-            const userUid = data.uid ? data.uid.toLowerCase() : "";
-
-            return (
-              emailPrefix === storeIdentifier.toLowerCase() || 
-              nameSlug.includes(storeIdentifier.toLowerCase()) || 
-              docId === storeIdentifier.toLowerCase() ||
-              userUid === storeIdentifier.toLowerCase()
-            );
-          });
-
-          if (matchedUserDoc) {
-            targetUserId = matchedUserDoc.id;
-            const userData = matchedUserDoc.data();
-            targetUserEmail = userData.email || "";
-            ownerName = userData.name || userData.email.split("@")[0];
-            setStoreOwner({ id: targetUserId, ...userData, displayName: ownerName });
-          } else {
-            ownerName = storeIdentifier.charAt(0).toUpperCase() + storeIdentifier.slice(1);
-            setStoreOwner({ displayName: ownerName });
-          }
+        if (!storeIdentifier) {
+          setLoading(false);
+          return;
         }
 
-        // Fetch all products or query by userId / email if your product creation includes them
+        // Step A: Find the user document matching the storeIdentifier
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const matchedUserDoc = usersSnapshot.docs.find(docSnap => {
+          const data = docSnap.data();
+          const emailPrefix = data.email ? data.email.split("@")[0].toLowerCase() : "";
+          const nameSlug = data.name ? data.name.replace(/\s+/g, "").toLowerCase() : "";
+          const docId = docSnap.id.toLowerCase();
+          const userUid = data.uid ? data.uid.toLowerCase() : "";
+
+          return (
+            emailPrefix === storeIdentifier.toLowerCase() || 
+            nameSlug.includes(storeIdentifier.toLowerCase()) || 
+            docId === storeIdentifier.toLowerCase() ||
+            userUid === storeIdentifier.toLowerCase()
+          );
+        });
+
+        // If user ID / store does not exist, alert via Swal and redirect or stop
+        if (!matchedUserDoc) {
+          await Swal.fire({
+            title: "Store Not Found",
+            text: "There is no store associated with this URL.",
+            icon: "error",
+            confirmButtonText: "Go Home"
+          });
+          router.push("/");
+          return;
+        }
+
+        const targetUserId = matchedUserDoc.id;
+        const userData = matchedUserDoc.data();
+        const targetUserUid = userData.uid || "";
+
+        // Step B: Fetch the business_name from the subaccounts collection
+        let businessName = "";
+        try {
+          // Check if subaccount document exists using sellerUid or user doc ID
+          const subaccountsQuery = query(
+            collection(db, "subaccounts"),
+            where("sellerUid", "==", targetUserUid || targetUserId)
+          );
+          const subQuerySnapshot = await getDocs(subaccountsQuery);
+
+          if (!subQuerySnapshot.empty) {
+            const subData = subQuerySnapshot.docs[0].data();
+            businessName = subData.business_name || subData.account_name || "";
+          } else {
+            // Fallback: Check if subaccount doc ID matches targetUserId
+            const subaccountDocRef = doc(db, "subaccounts", targetUserId);
+            const subaccountDocSnap = await getDoc(subaccountDocRef);
+            if (subaccountDocSnap.exists()) {
+              const subData = subaccountDocSnap.data();
+              businessName = subData.business_name || subData.account_name || "";
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching subaccount business name:", err);
+        }
+
+        // If subaccount business name is missing, fail safe or fallback
+        if (!businessName) {
+          await Swal.fire({
+            title: "Store Not Found",
+            text: "There is no active business store setup for this URL.",
+            icon: "error",
+            confirmButtonText: "Go Home"
+          });
+          router.push("/");
+          return;
+        }
+
+        setStoreOwner({ 
+          id: targetUserId, 
+          ...userData, 
+          displayName: businessName,
+          businessName: businessName 
+        });
+
+        // Step C: Fetch products belonging to this store owner
         const productsSnapshot = await getDocs(collection(db, "products"));
         
         const fetchedProducts = productsSnapshot.docs
@@ -421,33 +559,26 @@ export default function StorePage() {
             };
           })
           .filter((product) => {
-            // If no store identifier, show all products
-            if (!storeIdentifier) return true;
-
-            // Match if product has userId matching the user's doc ID or uid, 
-            // OR if you want to display all products created while logged in (or filter by email if stored)
-            const matchesUserId = targetUserId && (product.userId === targetUserId || product.userId === storeOwner?.uid);
-            
-            // Temporary fallback: If products in your DB don't have userId yet, 
-            // you can display products or attach them. For now, let's match userId or fallback to showing products if none have userId yet.
-            if (!product.userId) {
-              // If your product creation script didn't save userId, you can link it here or update your product creation form.
-              return true; // Displays the product until you update product creation to include userId
-            }
-
+            const matchesUserId = product.userId === targetUserId || product.userId === targetUserUid;
             return matchesUserId;
           });
 
         setProducts(fetchedProducts);
       } catch (error) {
-        console.error("Error fetching store products:", error);
+        console.error("Error fetching store data:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Failed to load store details.",
+          icon: "error",
+        });
       } finally {
         setLoading(false);
       }
     }
 
     fetchStoreAndProducts();
-  }, [storeIdentifier]);
+  }, [storeIdentifier, router]);
+
 
 
   // 2. Filter products by search query
@@ -532,7 +663,7 @@ export default function StorePage() {
     }
   };
 
-  const storeDisplayName = storeOwner?.displayName || storeIdentifier || "EchoByte Store";
+ const storeDisplayName = storeOwner?.businessName || storeIdentifier || "EchoByte Store";
 
   return (
     <PageContainer>
@@ -546,10 +677,10 @@ export default function StorePage() {
         <HeroContent>
           <StoreBadge>Digital Storefront</StoreBadge>
           <HeroTitle>
-            Welcome to <span>{storeDisplayName}'s Store</span>
+            Welcome to <span>{storeDisplayName}</span>
           </HeroTitle>
           <HeroSubtitle>
-            Explore exclusive digital products, software tools, and premium offerings curated specially for you.
+            Explore exclusive digital products and digital services
           </HeroSubtitle>
           <SearchInput
             type="text"
@@ -628,6 +759,7 @@ export default function StorePage() {
           </ProductsGrid>
         </ProductsWrapper>
       </StoreLayout>
+      <StoreFooter/>
     </PageContainer>
   );
 }

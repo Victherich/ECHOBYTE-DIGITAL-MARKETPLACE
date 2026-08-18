@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "ECHOBYTE DIGITAL STORE",
-  description: "Buy and sell digital products. Create your custom storefront and trade digital assets, templates, and software.",
+  title: "ECHOBYTE DIGI-MART",
+  description: "Buy and sell digital products and services. Create your custom storefront and trade digital assets, templates, software, coaching links, meeting links , communities and lots more...",
   icons: {
     icon: "/favicon.png",
   },

@@ -52,14 +52,14 @@ const landingData = {
   ],
 
   process: [
-    { step: "01", title: "Create Your Account", desc: "Sign up in seconds to unlock your seller dashboard and storefront." },
-    { step: "02", title: "Upload Digital Products", desc: "Add your e-books, code templates, graphics, or audio files with custom pricing." },
-    { step: "03", title: "Share Your Store Link", desc: "Promote your personal Echobyte storefront across your social networks." },
-    { step: "04", title: "Earn & Scale", desc: "Get paid instantly for every download while we handle delivery and security." }
+    { step: "01", title: "Create Your Account", desc: "Sign up in seconds to unlock your seller dashboard and storefront, you can sell and also buy from the same dashboard." },
+    { step: "02", title: "Post Digital Products and Services", desc: "Post e-books, templates, graphics, audios, videos, meeting links, communities links, coaching links and set your prices." },
+    { step: "03", title: "Share Your Store Link", desc: "Promote your personal storefront across your social networks." },
+    { step: "04", title: "Earn & Scale", desc: "Get paid directly into your bank account for every purchase you make while we the platform handles automatic delivery and security." }
   ],
   testimonials: [
     {
-      quote: "Echobyte Digital Store made it so easy to set up my template shop. I launched my store and made my first sale within 24 hours!",
+      quote: "Echobyte Digimart Store made it so easy to set up my template shop. I launched my store and made my first sale within 24 hours!",
       author: "Daniel Adebayo",
       role: "UI/UX Creator"
     },
@@ -71,7 +71,7 @@ const landingData = {
   ],
   ctaBanner: {
     title: "Ready to Launch Your Digital Business?",
-    subtitle: "Join thousands of creators buying and selling top-tier digital assets on Echobyte Digital Store today.",
+    subtitle: "Join thousands of creators buying and selling top-tier digital assets on Echobyte Digi-Mart today.",
     buttonText: "Open Your Storefront Now"
   }
 };
@@ -444,31 +444,6 @@ export default function CompleteLandingPage() {
           </StatsSection>
         </Fade>
 
-        {/* 3. SERVICES / FEATURES SECTION (Using Emojis instead of Images) */}
-        <ServicesSection>
-          <SectionHeader>
-            <SectionTitle>Digital Store Features</SectionTitle>
-            <SectionSubtitle>Everything you need to buy and sell digital products seamlessly.</SectionSubtitle>
-          </SectionHeader>
-          <ServicesGrid>
-            {landingData.services.map((service, idx) => (
-              <Slide direction="up" delay={idx * 100} triggerOnce key={idx} style={{ display: 'contents' }}>
-                <ServiceCard>
-                  <ServiceIconContainer>{service.icon}</ServiceIconContainer>
-                  <CardTitle>{service.title}</CardTitle>
-                  <CardDesc>{service.desc}</CardDesc>
-                </ServiceCard>
-              </Slide>
-            ))}
-          </ServicesGrid>
-
-          <ViewMoreContainer>
-            <Link href="/store">
-              Explore Digital Stores →
-            </Link>
-          </ViewMoreContainer>
-        </ServicesSection>
-
         {/* 5. PROCESS SECTION */}
         <ProcessSection>
           <SectionHeader>
@@ -492,6 +467,34 @@ export default function CompleteLandingPage() {
             </Link>
           </ViewMoreContainer>
         </ProcessSection>
+
+
+
+        {/* 3. SERVICES / FEATURES SECTION (Using Emojis instead of Images) */}
+        {/* <ServicesSection>
+          <SectionHeader>
+            <SectionTitle>Features</SectionTitle>
+            <SectionSubtitle>Everything you need to buy and sell digital products seamlessly.</SectionSubtitle>
+          </SectionHeader>
+          <ServicesGrid>
+            {landingData.services.map((service, idx) => (
+              <Slide direction="up" delay={idx * 100} triggerOnce key={idx} style={{ display: 'contents' }}>
+                <ServiceCard>
+                  <ServiceIconContainer>{service.icon}</ServiceIconContainer>
+                  <CardTitle>{service.title}</CardTitle>
+                  <CardDesc>{service.desc}</CardDesc>
+                </ServiceCard>
+              </Slide>
+            ))}
+          </ServicesGrid>
+
+          <ViewMoreContainer>
+            <Link href="/store">
+              Explore Digital Stores →
+            </Link>
+          </ViewMoreContainer>
+        </ServicesSection> */}
+
 
         {/* 4. E-COMMERCE PRODUCTS SECTION */}
         <LandingProductsSection />
