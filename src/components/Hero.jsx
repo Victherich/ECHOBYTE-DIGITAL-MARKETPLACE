@@ -317,7 +317,7 @@ export default function HeroSection() {
 
         {/* Dual Call-To-Action Buttons */}
         <ButtonGroup>
-          <PrimaryButton href="/login">
+          <PrimaryButton href="/signup">
             Start Selling
             <ArrowRight className="w-5 h-5 transition-transform duration-300 hover:translate-x-1" />
           </PrimaryButton>

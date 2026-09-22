@@ -11,6 +11,7 @@ import {
 import styled from "styled-components";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import BackToDashboard from "@/components/BackToDashboard";
 
 // 🎨 ECHOBYTE DIGITAL STORE THEME COLORS (Indigo/Purple Vibrant Tech Gradient)
 const Primary = "#6366f1";
@@ -315,6 +316,8 @@ export default function SellerSalesPage({ sellerEmail }) {
           })}
         </OrdersGrid>
       )}
+
+      <BackToDashboard/>
     </Container>
   );
 }

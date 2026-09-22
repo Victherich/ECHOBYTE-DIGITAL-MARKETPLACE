@@ -442,6 +442,8 @@ import { db, auth } from "@/firebaseConfig";
 import { doc, getDoc, setDoc, collection, addDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
 import styled from "styled-components";
 import Swal from "sweetalert2";
+import BackToDashboard from "@/components/BackToDashboard";
+import { useRouter } from "next/navigation";
 
 // 🎨 Theme Colors
 const Primary = "#6366f1";
@@ -553,7 +555,7 @@ export default function PaystackSubaccountSetupPage() {
   const sellerEmail = auth.currentUser?.email;
   const sellerUid = auth.currentUser?.uid;
   const [deleting, setDeleting] = useState(false);
-
+const router = useRouter();
   const [formData, setFormData] = useState({
     businessName: "",
     settlementBank: "",
@@ -806,6 +808,11 @@ export default function PaystackSubaccountSetupPage() {
           )}
         </FormCard>
       )}
+      <BackToDashboard/>
+      {subaccountInfo&&<SubmitButton onClick={()=>router.push('/dashboard/manage-products')}>
+        Proceed to Posting Products &
+        Services
+      </SubmitButton>}
     </Container>
   );
 }

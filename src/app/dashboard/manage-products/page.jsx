@@ -14,6 +14,7 @@ import {
 import styled from "styled-components";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import BackToDashboard from "@/components/BackToDashboard";
 
 // 🎨 ECHOBYTE THEME COLORS
 const PrimaryColor = "#6366f1";
@@ -490,6 +491,22 @@ const SaveButton = styled.button`
   }
 `;
 
+const SecondaryActionButton = styled.button`
+  background: #f1f5f9;
+  color: ${Dark};
+  border: 1px solid ${Border};
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+`;
+
 // 🔹 Compression utility function
 const compressImage = (file, maxSizeKB = 100) => {
   return new Promise((resolve, reject) => {
@@ -749,6 +766,42 @@ export default function ProductsCrudPage() {
     }
   };
 
+
+// 📋 Copy Link Handler
+  const handleCopyLink = (itemId, e) => {
+    e.stopPropagation();
+    const fullLink = `${window.location.origin}/productdetail/${itemId}`;
+    navigator.clipboard.writeText(fullLink).then(() => {
+      Swal.fire({
+        icon: "success",
+        title: "Copied!",
+        text: "Product link copied to clipboard.",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+    }).catch(() => {
+      Swal.fire("Error", "Failed to copy link.", "error");
+    });
+  };
+
+  // 🔗 Share Link Handler
+  const handleShareLink = (item, e) => {
+    e.stopPropagation();
+    const fullLink = `${window.location.origin}/productdetail/${item.id}`;
+    if (navigator.share) {
+      navigator.share({
+        title: item.name,
+        text: `Check out ${item.name}!`,
+        url: fullLink,
+      }).catch(() => {});
+    } else {
+      handleCopyLink(item.id, e);
+    }
+  };
+
+
+
+
   const filteredData = products
     .filter((item) => {
       const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase());
@@ -768,7 +821,7 @@ export default function ProductsCrudPage() {
     <Container>
       <HeaderBanner>
         <ColorfulTitle>Digital Products & Services Management 🛍️</ColorfulTitle>
-        <ColorfulSub>Post downloadable files, links, courses, or remote booking services securely.</ColorfulSub>
+        <ColorfulSub>Post products and services, file links, courses, remote booking service links, meeting or coaching links, communities etc.</ColorfulSub>
       </HeaderBanner>
 
       <ActionRow>
@@ -819,7 +872,7 @@ export default function ProductsCrudPage() {
           {filteredData.map((item) => {
             const displayImg = item.image || item.images?.[0] || "https://placehold.co/400x300?text=No+Image";
             return (
-              <ProductCard key={item.id} onClick={() => router.push(`/productdetail/${item.id}`)}>
+              <ProductCard key={item.id}>
                 <ProductImageContainer>
                   <ProductImage src={displayImg} alt={item.name} />
                 </ProductImageContainer>
@@ -828,19 +881,35 @@ export default function ProductsCrudPage() {
                     {item.name ? item.name.charAt(0).toUpperCase() + item.name.slice(1) : ""}
                   </ProductName>
                   <ProductAmount>₦{Number(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</ProductAmount>
-                  {item.url && (
-                    <ProductLinkBadge href={item.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                      Access Link ↗
-                    </ProductLinkBadge>
-                  )}
+                  {/* {item.url && (
+                  
+                  )} */}
                 </ProductInfo>
                 <ButtonGroup>
                   <EditButton onClick={(e) => handleEdit(item, e)}>Edit</EditButton>
                   <DeleteButton onClick={(e) => handleDelete(item.id, e)}>Delete</DeleteButton>
                 </ButtonGroup>
+
+                {/* 👇 ADD THESE TWO NEW BUTTONS HERE 👇 */}
+  <SecondaryActionButton onClick={(e) => handleCopyLink(item.id, e)}>
+    📋 Copy Link
+  </SecondaryActionButton>
+
+  <SecondaryActionButton onClick={(e) => handleShareLink(item, e)}>
+    🔗 Share Link
+  </SecondaryActionButton>
+                  <EditButton onClick={()=>window.open(`${item.url}`,"_blank")}>
+                    Access Product link
+                  </EditButton>
+                  <EditButton onClick={()=>router.push(`/dashboard/productdetail/${item.id}`)}>
+                    Preview Post
+                  </EditButton>
+                  
               </ProductCard>
             );
           })}
+
+        
         </ProductsGrid>
       )}
 
@@ -926,7 +995,7 @@ export default function ProductsCrudPage() {
                         onChange={handleFileChange}
                       />
                       <UploadButtonLabel htmlFor="product-file-input">
-                        Select Image
+                        Select Image (squared image size, 1:1 is preferred,)
                       </UploadButtonLabel>
                     </>
                   )}
@@ -941,6 +1010,8 @@ export default function ProductsCrudPage() {
           </ModalContainer>
         </ModalOverlay>
       )}
+      <br/>
+        <BackToDashboard/>
     </Container>
   );
 }

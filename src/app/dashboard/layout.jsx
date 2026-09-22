@@ -359,7 +359,7 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebaseConfig";
+import { auth,db } from "@/firebaseConfig";
 import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import Swal from "sweetalert2";
@@ -572,6 +572,8 @@ export default function DashboardLayout({ children }) {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -582,6 +584,15 @@ export default function DashboardLayout({ children }) {
 
     return () => unsub();
   }, [router]);
+
+
+
+
+
+
+
+
+
 
   if (loading) {
     return (

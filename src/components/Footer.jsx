@@ -5,25 +5,25 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
-/* ================= COLORS (Light Theme) ================= */
+/* ================= COLORS (Dark Gradient Theme) ================= */
 
 const Blue = "#6366f1";
 const Purple = "#a855f7";
 const Dark = "#0f172a";
-const TextMuted = "#475569";
-const Border = "#e2e8f0";
 const White = "#ffffff";
-const LightBg = "#f8fafc";
+const TextLight = "#f1f5f9";
+const TextMuted = "rgba(255, 255, 255, 0.75)";
+const BorderColor = "rgba(255, 255, 255, 0.15)";
 
 /* ================= FOOTER STYLES ================= */
 
 const FooterContainer = styled.footer`
-  background: ${LightBg};
-  color: ${Dark};
-  border-top: 1px solid ${Border};
+  background: linear-gradient(135deg, ${Blue} 0%, ${Purple} 100%);
+  color: ${TextLight};
+  border-top: 1px solid ${BorderColor};
   font-family: inherit;
   position: relative;
-  padding:1rem;
+  padding: 1rem;
 `;
 
 const FooterInner = styled.div`
@@ -55,15 +55,14 @@ const FooterCol = styled.div`
 const Logo = styled.div`
   font-size: 1.4rem;
   font-weight: 800;
-  color: ${Dark};
+  color: ${White};
   display: flex;
   align-items: center;
   gap: 4px;
 
   span {
-    background: linear-gradient(135deg, ${Blue} 0%, ${Purple} 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #fde047; /* Soft yellow accent for contrast */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -76,7 +75,7 @@ const FooterText = styled.p`
 const ColTitle = styled.h4`
   font-size: 1.05rem;
   font-weight: 700;
-  color: ${Dark};
+  color: ${White};
   letter-spacing: 0.5px;
   margin-bottom: 0px;
 `;
@@ -85,11 +84,12 @@ const FooterLink = styled(Link)`
   color: ${TextMuted};
   text-decoration: none;
   font-size: 0.9rem;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
   width: fit-content;
 
   &:hover {
-    color: ${Blue};
+    color: ${White};
+    transform: translateX(3px);
   }
 `;
 
@@ -101,7 +101,7 @@ const ContactInfo = styled.div`
   font-size: 0.9rem;
 
   span {
-    color: ${Dark};
+    color: ${White};
     font-weight: 500;
   }
 `;
@@ -119,16 +119,17 @@ const SocialIconLink = styled.a`
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: ${White};
-  border: 1px solid ${Border};
-  color: ${TextMuted};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: ${White};
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, ${Blue} 0%, ${Purple} 100%);
-    color: ${White};
-    border-color: transparent;
+    background: ${White};
+    color: ${Blue};
+    border-color: ${White};
     transform: translateY(-2px);
   }
 
@@ -143,7 +144,7 @@ const BottomBar = styled.div`
   max-width: 1200px;
   margin: auto;
   padding: 20px 1.5px;
-  border-top: 1px solid ${Border};
+  border-top: 1px solid ${BorderColor};
 
   display: flex;
   justify-content: space-between;
@@ -172,7 +173,7 @@ const LegalLinks = styled.div`
     transition: color 0.2s ease;
 
     &:hover {
-      color: ${Blue};
+      color: ${White};
     }
   }
 `;
@@ -205,7 +206,6 @@ const WhatsAppFloat = styled.a`
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-
   const pathname = usePathname();
 
   // Define allowed routes / route prefixes
@@ -213,11 +213,10 @@ export default function Footer() {
   const isAllowedRoute = 
     pathname === "/privacy-policy" || 
     pathname === "/terms-conditions" || 
-    pathname ==='/'||
-    pathname === '/about'||
-    pathname ==='/'||
-    pathname==='/stores'||
-    pathname==='/contact'||
+    pathname === '/' ||
+    pathname === '/about' ||
+    pathname === '/stores' ||
+    pathname === '/contact' ||
     isDashboard;
 
   // If we are not on an allowed route, don't render the footer or WhatsApp float
@@ -248,7 +247,6 @@ export default function Footer() {
             <FooterLink href="/">Home</FooterLink>
             <FooterLink href="/about">About Us</FooterLink>
             <FooterLink href="/stores">Digital Stores</FooterLink>
-  
             <FooterLink href="/contact">Contact</FooterLink>
           </FooterCol>
 
@@ -258,7 +256,6 @@ export default function Footer() {
             <ContactInfo>
               <p>Email: <span>echobyteconcept@gmail.com</span></p>
               <p>Phone: <span>+234 706 348 0314</span></p>
-              {/* <p>Location: <span>Lagos state, Nigeria</span></p> */}
             </ContactInfo>
           </FooterCol>
 
@@ -269,7 +266,6 @@ export default function Footer() {
               Follow us on social media for tech updates, promotions, and digital store releases.
             </FooterText>
             <SocialIconsContainer>
-              {/* Instagram / Social */}
               <SocialIconLink 
                 href="https://www.instagram.com" 
                 target="_blank" 

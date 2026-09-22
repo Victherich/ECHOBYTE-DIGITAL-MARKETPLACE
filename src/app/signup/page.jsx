@@ -443,10 +443,15 @@ const handleSubmit = async (e) => {
 
               <CheckboxWrapper>
                 <Checkbox
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                />
+  type="checkbox"
+  checked={agreed}
+  onChange={(e) => setAgreed(e.target.checked)}
+  style={{
+    background: "white",
+    backgroundColor: "white",
+    colorScheme: "light"
+  }}
+/>
                 <PolicyText>
                   I agree to the{" "}
                   <a href="/terms-conditions" target="_blank" rel="noopener noreferrer">

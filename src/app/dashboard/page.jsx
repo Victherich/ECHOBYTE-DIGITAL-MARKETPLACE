@@ -7,14 +7,14 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "@/firebaseConfig";
 
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, getDocs, updateDoc, collection, query, where } from "firebase/firestore"
+import { onAuthStateChanged } from 'firebase/auth';
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
 // 🎨 ECHOBYTE CONCEPT THEME COLORS (Indigo / Violet Gradient Palette & Light Theme)
-const PrimaryColor = "#6366f1";
-const Dark = "#0f172a";
+const PrimaryColor = "#6366f1";const Dark = "#0f172a";
 const Border = "#e2e8f0";
 const White = "#ffffff";
 const AccentGradient = "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)";
@@ -74,15 +74,16 @@ const MenuCard = styled.div.withConfig({
 })`
   background: ${White};
   border-radius: 14px;
-  padding: 20px;
+  padding: 10px;
   border: 1px solid ${Border};
   border-left: 4px solid ${PrimaryColor};
-  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.5);
   cursor: ${(props) => (props.clickable ? "pointer" : "default")};
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: all 0.25s ease;
+   border-color: ${PrimaryColor};
 
   &:hover {
     transform: ${(props) => (props.clickable ? "translateY(-3px)" : "none")};
@@ -255,6 +256,53 @@ const DashboardHome = () => {
     fetchUserData();
   }, []);
 
+
+
+
+useEffect(() => {
+    const checkUserSubaccount = async () => {
+      // 1. Get the currently logged-in user
+      const currentUser = auth.currentUser;
+
+      // ✅ Check FIRST before trying to read .uid
+      if (!currentUser) return; 
+
+      console.log("Current User UID:", currentUser.uid);
+
+      try {
+        // 2. Query the 'subaccounts' collection for this user's UID
+        const q = query(
+          collection(db, "subaccounts"), 
+          where("sellerUid", "==", currentUser.uid)
+        );
+        const querySnapshot = await getDocs(q);
+
+        // 3. If no subaccount exists, trigger the SweetAlert prompt
+        if (querySnapshot.empty) {
+          Swal.fire({
+            title: 'Payout Setup Required',
+            text: 'You need to set up your payout details to receive funds and fully unlock your dashboard.',
+            icon: 'warning',
+            confirmButtonText: 'Set Up Payout Now',
+            // allowOutsideClick: false,   
+            allowEscapeKey: false,     
+            confirmButtonColor: '#6366f1', 
+            showCancelButton:true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              router.push('/dashboard/payout-details-management');
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error checking subaccount status:", error);
+      }
+    };
+
+    checkUserSubaccount();
+  }, [router]);
+
+
   // 📝 Function to handle editing the phone number
   const handleEditPhone = async () => {
     const user = auth.currentUser;
@@ -356,48 +404,91 @@ const DashboardHome = () => {
 
 
 
-  useEffect(() => {
-    const savedProduct = localStorage.getItem('orderCheck');
+  // useEffect(() => {
+  //   const savedProduct = localStorage.getItem('orderCheck');
     
-    // If nothing is saved, do nothing
-    if (!savedProduct) return;
+  //   // If nothing is saved, do nothing
+  //   if (!savedProduct) return;
+
+  //   try {
+  //     const productObj = JSON.parse(savedProduct);
+  //     // Ensure the product has an ID or slug to navigate back to its detail page
+  //     // Adjust `productObj.id` or `productObj.slug` based on how your product identifier is stored
+  //     const productId = productObj.id || productObj.slug; 
+
+  //     Swal.fire({
+  //       title: 'Resume Order?',
+  //       text: 'You were about making an order. Would you like to proceed?',
+  //       icon: 'info',
+  //       showCancelButton: true,
+  //       confirmButtonText: 'Proceed with Order',
+  //       cancelButtonText: 'Cancel',
+  //       confirmButtonColor: '#6366f1',
+  //       cancelButtonColor: '#ef4444',
+  //     }).then((result) => {
+  //       if (result.isConfirmed) {
+  //         // Clear the orderCheck so it doesn't prompt again on subsequent visits
+  //         // localStorage.removeItem('orderCheck');
+          
+  //         // Navigate back to the product detail page using its ID/slug
+  //         if (productId) {
+  //           router.push(`/productdetail/${productId}`); // Update this route to match your product detail page path structure
+  //         } else {
+  //           Swal.fire('Error', 'Product reference not found.', 'error');
+  //         }
+  //       } else {
+  //         // If canceled, clean up local storage
+  //         localStorage.removeItem('orderCheck');
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.error("Error parsing saved product from localStorage:", error);
+  //     localStorage.removeItem('orderCheck');
+  //   }
+  // }, []);
+
+
+
+  // 🛡️ Helper function to check subaccount before navigating
+  
+  
+  
+  const handleProtectedNavigation = async (targetRoute) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
 
     try {
-      const productObj = JSON.parse(savedProduct);
-      // Ensure the product has an ID or slug to navigate back to its detail page
-      // Adjust `productObj.id` or `productObj.slug` based on how your product identifier is stored
-      const productId = productObj.id || productObj.slug; 
+      const q = query(
+        collection(db, "subaccounts"), 
+        where("sellerUid", "==", currentUser.uid)
+      );
+      const querySnapshot = await getDocs(q);
 
-      Swal.fire({
-        title: 'Resume Order?',
-        text: 'You were about making an order. Would you like to proceed?',
-        icon: 'info',
-        showCancelButton: true,
-        confirmButtonText: 'Proceed with Order',
-        cancelButtonText: 'Cancel',
-        confirmButtonColor: '#6366f1',
-        cancelButtonColor: '#ef4444',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Clear the orderCheck so it doesn't prompt again on subsequent visits
-          // localStorage.removeItem('orderCheck');
-          
-          // Navigate back to the product detail page using its ID/slug
-          if (productId) {
-            router.push(`/productdetail/${productId}`); // Update this route to match your product detail page path structure
-          } else {
-            Swal.fire('Error', 'Product reference not found.', 'error');
+      // If no subaccount exists, trigger the SweetAlert prompt
+      if (querySnapshot.empty) {
+        Swal.fire({
+          title: 'Payout Setup Required',
+          text: 'You need to set up your payout details to receive funds and access this page.',
+          icon: 'warning',
+          confirmButtonText: 'Set Up Payout Now',
+          // allowOutsideClick: false,   
+          allowEscapeKey: false,     
+          confirmButtonColor: '#6366f1', 
+          showCancelButton:true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            router.push('/dashboard/payout-details-management');
           }
-        } else {
-          // If canceled, clean up local storage
-          localStorage.removeItem('orderCheck');
-        }
-      });
+        });
+      } else {
+        // Subaccount exists! Proceed to target route
+        router.push(targetRoute);
+      }
     } catch (error) {
-      console.error("Error parsing saved product from localStorage:", error);
-      localStorage.removeItem('orderCheck');
+      console.error("Error checking subaccount status:", error);
+      Swal.fire('Error', 'Something went wrong verifying your account.', 'error');
     }
-  }, []);
+  };
 
 
   if (loading) {
@@ -426,7 +517,7 @@ const DashboardHome = () => {
           {userData.name || userData.email} 👋
         </Greeting>
         <SubGreeting>
-          Manage your digital store orders, track web services, and explore exclusive catalog offerings.
+          Manage your digital store and orders.
         </SubGreeting>
 
         {userData.email && (() => {
@@ -500,65 +591,53 @@ const DashboardHome = () => {
   <SectionTitle>You can sell and buy digital products, meeting sessions, coaching sessions , communities and lots more</SectionTitle>
 
           <SectionTitle>Your Sell Actions</SectionTitle>
-          <MenuGrid>
-            
+        <MenuGrid>
+        {/* This one naturally leads to the payout page, so it can go directly */}
+        <MenuCard clickable onClick={() => router.push("/dashboard/payout-details-management")}>
+          <MenuContent>
+            <MenuTitle>Store Name & Payout Details</MenuTitle>
+            <MenuDesc>Manage your store name & Payout Details</MenuDesc>
+          </MenuContent>
+          <MenuIcon></MenuIcon>
+        </MenuCard>
+        
+        
+        <MenuCard clickable onClick={() => handleProtectedNavigation("/dashboard/manage-products")}>
+          <MenuContent>
+            <MenuTitle>Manage Digital Products</MenuTitle>
+            <MenuDesc>Create, view, update, and delete your digital products</MenuDesc>
+          </MenuContent>
+          <MenuIcon></MenuIcon>
+        </MenuCard>
 
-            <MenuCard clickable onClick={() => router.push("/dashboard/manage-products")}>
-              <MenuContent>
-                <MenuTitle>Manage Digital Products</MenuTitle>
-                <MenuDesc>Create, view, update, and delete your digital products</MenuDesc>
-              </MenuContent>
-              <MenuIcon></MenuIcon>
-            </MenuCard>
+        <MenuCard clickable onClick={() => handleProtectedNavigation("/dashboard/manage-orders")}>
+          <MenuContent>
+            <MenuTitle>My Customers</MenuTitle>
+            <MenuDesc>View your customer and their purchases</MenuDesc>
+          </MenuContent>
+          <MenuIcon>🛒</MenuIcon>
+        </MenuCard>
 
-            <MenuCard clickable onClick={() => router.push("/dashboard/manage-orders")}>
-              <MenuContent>
-                <MenuTitle>My Customers</MenuTitle>
-                <MenuDesc>View your customer and their purchases</MenuDesc>
-              </MenuContent>
-              <MenuIcon>🛒</MenuIcon>
-            </MenuCard>
+        {userData.role === 'admin' && (
+          <MenuCard clickable onClick={() => handleProtectedNavigation("/dashboard/manage-users")}>
+            <MenuContent>
+              <MenuTitle>Manage Users</MenuTitle>
+              <MenuDesc>View and manage customer information</MenuDesc>
+            </MenuContent>
+            <MenuIcon>👥</MenuIcon>
+          </MenuCard>
+        )}
 
-            {userData.role==='admin'&&<MenuCard clickable onClick={() => router.push("/dashboard/manage-users")}>
-              <MenuContent>
-                <MenuTitle>Manage Users</MenuTitle>
-                <MenuDesc>View and manage customer information</MenuDesc>
-              </MenuContent>
-              <MenuIcon>👥</MenuIcon>
-            </MenuCard>}
+        <MenuCard clickable onClick={() => handleProtectedNavigation("/dashboard/analytics")}>
+          <MenuContent>
+            <MenuTitle>Analytics</MenuTitle>
+            <MenuDesc>View store performance metrics</MenuDesc>
+          </MenuContent>
+          <MenuIcon>📈</MenuIcon>
+        </MenuCard>
 
-            {/* <MenuCard clickable onClick={() => router.push("/dashboard/promocodes")}>
-              <MenuContent>
-                <MenuTitle>Manage Promo Codes</MenuTitle>
-                <MenuDesc>View and manage promo codes</MenuDesc>
-              </MenuContent>
-              <MenuIcon>💥</MenuIcon>
-            </MenuCard> */}
-
-            <MenuCard clickable onClick={() => router.push("/dashboard/analytics")}>
-              <MenuContent>
-                <MenuTitle>Analytics</MenuTitle>
-                <MenuDesc>View store performance metrics</MenuDesc>
-              </MenuContent>
-              <MenuIcon>📈</MenuIcon>
-            </MenuCard>
-
-            <MenuCard clickable onClick={() => router.push("/dashboard/payout-details-management")}>
-              <MenuContent>
-                <MenuTitle>Store Name & Payout Details</MenuTitle>
-                <MenuDesc>Manage your store name & Payout Details</MenuDesc>
-              </MenuContent>
-              <MenuIcon></MenuIcon>
-            </MenuCard>
-
-            {/* <MenuCard clickable onClick={() => router.push("/dashboard/hostinglist")}>
-              <MenuContent>
-                <MenuTitle>Manage Hosting</MenuTitle>
-                <MenuDesc>View and manage hosting services</MenuDesc>
-              </MenuContent>
-              <MenuIcon>🌐</MenuIcon>
-            </MenuCard> */}
-          </MenuGrid>
+        
+      </MenuGrid>
         </>
     
 

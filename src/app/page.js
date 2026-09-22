@@ -72,7 +72,7 @@ const landingData = {
   ctaBanner: {
     title: "Ready to Launch Your Digital Business?",
     subtitle: "Join thousands of creators buying and selling top-tier digital assets on Echobyte Digi-Mart today.",
-    buttonText: "Open Your Storefront Now"
+    buttonText: "Open Your Store Now"
   }
 };
 
@@ -462,7 +462,7 @@ export default function CompleteLandingPage() {
             ))}
           </ProcessGrid>
           <ViewMoreContainer>
-            <Link href="/login">
+            <Link href="/signup">
               Open Your Store →
             </Link>
           </ViewMoreContainer>
@@ -497,7 +497,7 @@ export default function CompleteLandingPage() {
 
 
         {/* 4. E-COMMERCE PRODUCTS SECTION */}
-        <LandingProductsSection />
+        {/* <LandingProductsSection /> */}
 
         
 
@@ -527,7 +527,7 @@ export default function CompleteLandingPage() {
           <CtaBannerSection>
             <CtaTitle>{landingData.ctaBanner.title}</CtaTitle>
             <CtaSubtitle>{landingData.ctaBanner.subtitle}</CtaSubtitle>
-            <Link href="/login" style={{ textDecoration: 'none' }}>
+            <Link href="/signup" style={{ textDecoration: 'none' }}>
               <CtaButton>{landingData.ctaBanner.buttonText}</CtaButton>
             </Link>
           </CtaBannerSection>

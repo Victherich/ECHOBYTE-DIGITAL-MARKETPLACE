@@ -417,6 +417,7 @@ import { db } from "@/firebaseConfig";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import styled from "styled-components";
 import Swal from "sweetalert2";
+import BackToDashboard from "@/components/BackToDashboard";
 
 // 🎨 ECHOBYTE DIGITAL STORE THEME COLORS (Indigo/Purple Vibrant Tech Gradient)
 const Primary = "#6366f1";
@@ -750,6 +751,8 @@ export default function AnalyticsFinancePage({ sellerEmail }) {
           <MetricSubText>{startDate || endDate ? "Within selected dates" : "Lifetime recorded orders"}</MetricSubText>
         </MetricCard>
       </MetricsGrid>
+
+      <BackToDashboard/>
 
       {/* <SectionRow>
         <ColorfulSectionTitle>Operational Breakdowns</ColorfulSectionTitle>
